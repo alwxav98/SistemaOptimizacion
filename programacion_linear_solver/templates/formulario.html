@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ingresar Problema</title>
+    <link rel="stylesheet" href="{{ url_for('programacion_linear_solver.static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Definir Problema</h1>
+        <form method="post">
+            <label>Tipo de Objetivo:</label>
+            <select name="objetivo_tipo">
+                <option value="Minimizar">Minimizar</option>
+                <option value="Maximizar">Maximizar</option>
+            </select>
+            <br>
+
+            <h2>Función Objetivo</h2>
+            {% for i in range(num_variables) %}
+                <input type="text" name="obj_{{i}}" required> X{{i+1}}
+            {% endfor %}
+
+            <h2>Restricciones</h2>
+            {% for i in range(num_restricciones) %}
+                {% for j in range(num_variables) %}
+                    <input type="text" name="res_{{i}}_{{j}}" required> X{{j+1}}
+                {% endfor %}
+                <select name="signo_{{i}}">
+                    <option value="<=">≤</option>
+                    <option value=">=">≥</option>
+                    <option value="=">=</option>
+                </select>
+                <input type="text" name="const_{{i}}" required>
+                <br>
+                <br>
+            {% endfor %}
+            
+            <button type="submit">Resolver</button>
+        </form>
+
+        <!-- Botón para regresar al Menú Principal -->
+        <div class="menu-button">
+            <a href="/" class="back-button">Regresar al Menú Principal</a>
+        </div>
+    </div>
+</body>
+</html>

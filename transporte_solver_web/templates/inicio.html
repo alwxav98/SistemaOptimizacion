@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solver de Transporte</title>
+    <link rel="stylesheet" href="{{ url_for('transporte_solver_web.static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Optimización de Problemas de Transporte</h1>
+
+        <h3>Datos del Problema</h3>
+        <table id="tabla-datos">
+            <thead>
+                <tr id="header-row">
+                    <th></th>
+                    <th>Destino 1</th>
+                    <th>Destino 2</th>
+                    <th>Oferta</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Proveedor 1</td>
+                    <td><input type="number"></td>
+                    <td><input type="number"></td>
+                    <td><input type="number"></td>
+                </tr>
+                <tr>
+                    <td>Proveedor 2</td>
+                    <td><input type="number"></td>
+                    <td><input type="number"></td>
+                    <td><input type="number"></td>
+                </tr>
+                <tr>
+                    <td>Demanda</td>
+                    <td><input type="number"></td>
+                    <td><input type="number"></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="button-group">
+            <button onclick="agregarFila()">Agregar Proveedor</button>
+            <button onclick="agregarColumna()">Agregar Destino</button>
+            <button class="solve-btn" onclick="resolverProblema()">Resolver</button>
+        </div>
+
+        <h3>Resultado:</h3>
+        <div id="resultado"></div>
+
+        <!-- Botón para regresar al Menú Principal -->
+        <div class="menu-button">
+            <a href="/" class="back-button">Regresar al Menú Principal</a>
+        </div>
+    </div>
+
+    <script>
+        let proveedores = 2;
+        let destinos = 2;
+
+        function agregarFila() {
+            let tabla = document.getElementById("tabla-datos");
+            let tbody = tabla.getElementsByTagName("tbody")[0];
+            let row = tbody.insertRow(proveedores);
+            row.insertCell(0).innerText = `Proveedor ${proveedores + 1}`;
+            for (let j = 0; j < destinos; j++) {
+                row.insertCell(j + 1).innerHTML = '<input type="number">';
+            }
+            row.insertCell(destinos + 1).innerHTML = '<input type="number">';
+            proveedores++;
+        }
+
+        function agregarColumna() {
+            let tabla = document.getElementById("tabla-datos");
+            let headerRow = document.getElementById("header-row");
+            let newHeader = document.createElement("th");
+            newHeader.innerText = `Destino ${destinos + 1}`;
+            headerRow.insertBefore(newHeader, headerRow.children[destinos + 1]);
+
+            let tbody = tabla.getElementsByTagName("tbody")[0];
+            for (let i = 0; i < proveedores; i++) {
+                let row = tbody.rows[i];
+                let cell = row.insertCell(destinos + 1);
+                cell.innerHTML = '<input type="number">';
+            }
+
+            let rowDemanda = tbody.rows[proveedores];
+            let demandaCell = rowDemanda.insertCell(destinos + 1);
+            demandaCell.innerHTML = '<input type="number">';
+            destinos++;
+        }
+
+        async function resolverProblema() {
+            let costos = [];
+            let oferta = [];
+            let demanda = [];
+            let tabla = document.getElementById("tabla-datos");
+
+            for (let i = 0; i < proveedores; i++) {
+                let row = tabla.rows[i + 1];
+                let filaCostos = [];
+                for (let j = 1; j <= destinos; j++) {
+                    filaCostos.push(parseInt(row.cells[j].children[0].value) || 0);
+                }
+                costos.push(filaCostos);
+                oferta.push(parseInt(row.cells[destinos + 1].children[0].value) || 0);
+            }
+
+            let rowDemanda = tabla.rows[proveedores + 1];
+            for (let j = 1; j <= destinos; j++) {
+                demanda.push(parseInt(rowDemanda.cells[j].children[0].value) || 0);
+            }
+
+            let response = await fetch('/transporte_solver_web/solve', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ costos, oferta, demanda })
+            });
+
+            let resultado = await response.json();
+            if (resultado.status === "success") {
+                mostrarTablaResultados(resultado.solucion);
+            } else {
+                document.getElementById("resultado").innerText = "Error: " + resultado.message;
+            }
+        }
+
+        function mostrarTablaResultados(data) {
+            let resultadoDiv = document.getElementById("resultado");
+            resultadoDiv.innerHTML = "";
+
+            let table = document.createElement("table");
+            table.border = "1";
+
+            let headerRow = table.insertRow();
+            headerRow.insertCell().innerText = "Destinos";
+            Object.keys(data).forEach(proveedor => {
+                let th = document.createElement("th");
+                th.innerText = proveedor;
+                headerRow.appendChild(th);
+            });
+
+            let destinos = Object.keys(data[Object.keys(data)[0]]);
+            destinos.forEach(destino => {
+                let row = table.insertRow();
+                row.insertCell().innerText = destino;
+                Object.keys(data).forEach(proveedor => {
+                    let cell = row.insertCell();
+                    cell.innerText = data[proveedor][destino];
+                });
+            });
+
+            resultadoDiv.appendChild(table);
+        }
+    </script>
+</body>
+</html>

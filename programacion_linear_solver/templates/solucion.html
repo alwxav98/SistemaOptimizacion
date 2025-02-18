@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Solución</title>
+    <link rel="stylesheet" href="{{ url_for('programacion_linear_solver.static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Solución Óptima</h1>
+        <div class="resultado">
+            <p>La solución óptima es Z = {{ solucion['Z'] }}</p>
+            {% for key, value in solucion.items() if key != 'Z' %}
+                <p>{{ key }} = {{ value }}</p>
+            {% endfor %}
+            {% for key, value in variables_holgura_exceso.items() %}
+                <p>{{ key }} = {{ value }}</p>
+            {% endfor %}
+        </div>
+
+        <!-- Botón para regresar al Menú Principal -->
+        <div class="menu-button">
+            <a href="/" class="back-button">Regresar al Menú Principal</a>
+        </div>
+    </div>
+</body>
+</html>

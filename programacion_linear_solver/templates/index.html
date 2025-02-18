@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Problema de Programación Lineal</title>
+    <link rel="stylesheet" href="{{ url_for('programacion_linear_solver.static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Ingrese los Datos del Problema</h1>
+        <form method="post">
+            <label>Cantidad de Variables:</label>
+            <input type="number" name="num_variables" required>
+            <br>
+            <label>Cantidad de Restricciones:</label>
+            <input type="number" name="num_restricciones" required>
+            <br>
+            <button type="submit">Continuar</button>
+        </form>
+
+        <!-- Botón para regresar al Menú Principal -->
+        <div class="menu-button">
+            <a href="/" class="back-button">Regresar al Menú Principal</a>
+        </div>
+    </div>
+</body>
+</html>

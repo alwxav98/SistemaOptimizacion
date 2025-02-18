@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Solver de Redes</title>
+    <link rel="stylesheet" href="{{ url_for('network_solver.static', filename='styles.css') }}">
+
+</head>
+<body>
+    <div class="container">
+        <h1>Optimización de Problemas</h1>
+
+        <h3>Agregar Nodo</h3>
+        <form id="nodeForm">
+            <input type="text" id="nodeInput" placeholder="Nombre del nodo">
+            <button type="submit">Agregar</button>
+        </form>
+
+        <h3>Nodos Agregados:</h3>
+        <ul id="nodeList"></ul>
+
+        <h3>Agregar Arista</h3>
+        <form id="edgeForm">
+            <input type="text" id="fromNode" placeholder="Desde">
+            <input type="text" id="toNode" placeholder="Hasta">
+            <input type="number" id="weight" placeholder="Peso">
+            <button type="submit">Agregar</button>
+        </form>
+
+        <h3>Aristas Agregadas:</h3>
+        <ul id="edgeList"></ul>
+
+        <h3>Ruta Más Corta</h3>
+        <form id="pathForm">
+            <input type="text" id="startNode" placeholder="Inicio">
+            <input type="text" id="endNode" placeholder="Fin">
+            <button type="submit">Calcular</button>
+        </form>
+
+        <h3>Árbol de Expansión Mínima</h3>
+        <button id="mstButton">Calcular</button>
+
+        <h3>Flujo Máximo</h3>
+        <form id="flowForm">
+            <input type="text" id="sourceNode" placeholder="Fuente">
+            <input type="text" id="sinkNode" placeholder="Sumidero">
+            <button type="submit">Calcular</button>
+        </form>
+
+        <h3>Resultados:</h3>
+
+        <div class="result-container">
+            <div class="result-box">
+                <h4>Ruta Más Corta</h4>
+                <p id="shortestPathResult">---</p>
+            </div>
+
+            <div class="result-box">
+                <h4>Árbol de Expansión Mínima</h4>
+                <p id="mstResult">---</p>
+            </div>
+
+            <div class="result-box">
+                <h4>Flujo Máximo</h4>
+                <p id="maxFlowResult">---</p>
+            </div>
+        </div>
+
+        <h3>Visualización del Grafo</h3>
+        <button id="graphButton">Generar Grafo</button>
+        <img id="graphImage" src="" alt="Grafo de la Red" style="max-width: 100%; margin-top: 20px;">
+
+        <!-- Botón para regresar al Menú Principal -->
+        <div class="menu-button">
+            <a href="/" class="back-button">Regresar al Menú Principal</a>
+        </div>
+
+    </div>
+
+    <script>
+        async function fetchUpdate(url, data, updateFunc) {
+            let response = await fetch(url, {
+                method: "POST",
+                body: new URLSearchParams(data),
+                headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            });
+            let json = await response.json();
+            updateFunc(json);
+        }
+
+        function updateNodes(data) {
+            let nodeList = document.getElementById("nodeList");
+            nodeList.innerHTML = "";
+            data.nodes.forEach(node => {
+                let li = document.createElement("li");
+                li.textContent = node;
+                nodeList.appendChild(li);
+            });
+        }
+
+        function updateEdges(data) {
+            let edgeList = document.getElementById("edgeList");
+            edgeList.innerHTML = "";
+            data.edges.forEach(edge => {
+                let li = document.createElement("li");
+                li.textContent = `${edge[0]} - ${edge[1]} (Peso: ${edge[2]})`;
+                edgeList.appendChild(li);
+            });
+        }
+
+        document.getElementById("nodeForm").onsubmit = function(event) {
+            event.preventDefault();
+            fetchUpdate("/network_solver/add_node", { node: document.getElementById("nodeInput").value }, updateNodes);
+        };
+
+        document.getElementById("edgeForm").onsubmit = function(event) {
+            event.preventDefault();
+            fetchUpdate("/network_solver/add_edge", {
+                from: document.getElementById("fromNode").value,
+                to: document.getElementById("toNode").value,
+                weight: document.getElementById("weight").value
+            }, updateEdges);
+        };
+
+        document.getElementById("pathForm").onsubmit = async function(event) {
+            event.preventDefault();
+            let start = document.getElementById("startNode").value;
+            let end = document.getElementById("endNode").value;
+            let response = await fetch("/network_solver/shortest_path", {
+                method: "POST",
+                body: new URLSearchParams({ "start": start, "end": end }),
+                headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            });
+            let data = await response.json();
+            document.getElementById("shortestPathResult").innerText = `Ruta: ${data.path.join(" → ")} (Costo: ${data.cost})`;
+        };
+
+        document.getElementById("mstButton").onclick = async function() {
+            let response = await fetch("/network_solver/minimum_spanning_tree", { method: "POST" });
+            let data = await response.json();
+            let mstText = data.mst.map(edge => `${edge.from} → ${edge.to} (Peso: ${edge.weight})`).join("\n");
+            document.getElementById("mstResult").innerText = `\n${mstText}\nPeso Total: ${data.total_weight}`;
+        };
+
+        document.getElementById("flowForm").onsubmit = async function(event) {
+            event.preventDefault();
+            let source = document.getElementById("sourceNode").value;
+            let sink = document.getElementById("sinkNode").value;
+            let response = await fetch("/network_solver/max_flow", {
+                method: "POST",
+                body: new URLSearchParams({ "source": source, "sink": sink }),
+                headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            });
+            let data = await response.json();
+            document.getElementById("maxFlowResult").innerText = `Flujo Máximo: ${data.max_flow}`;
+        };
+
+        document.getElementById("graphButton").onclick = async function() {
+            let response = await fetch("/network_solver/generate_graph");
+            let data = await response.json();
+            document.getElementById("graphImage").src = data.graph_img;
+        };
+    </script>
+</body>
+</html>
