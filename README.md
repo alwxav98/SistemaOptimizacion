@@ -5,7 +5,7 @@ Este proyecto es un sistema modular basado en Flask que permite resolver problem
 ## 📂 Estructura del Proyecto
 
 ```
-📦 SISTEMAOPTIMIZACION
+📦 SistemaOptimizacion
 │── .idea/                        # Configuración del proyecto (IDE)
 │── chatbot_analisis_sensibilidad/ # Análisis de sensibilidad con chatbot
 │   ├── static/
