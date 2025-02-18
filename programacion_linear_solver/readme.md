@@ -62,6 +62,4 @@ Las contribuciones son bienvenidas. Para ello:
 ## Licencia
 Este proyecto está bajo la licencia MIT. Para más detalles, consulta el archivo `LICENSE`.
 
----
-Hecho con ❤️ por [Tu Nombre](https://github.com/tu_usuario).
 
