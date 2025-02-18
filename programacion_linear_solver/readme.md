@@ -16,6 +16,7 @@ MODELO PROGRAMACION LINEAL
 │   ├── index.html         # Página de inicio para definir el número de variables y restricciones.
 │   ├── solucion.html      # Página que muestra la solución óptima.
 │── static/                # Archivos de estilos CSS.
+│   ├── style.css
 │── app.py                 # Código principal de la aplicación con Flask y PuLP.
 ```
 
