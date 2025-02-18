@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solver de Transporte</title>
+    <!-- Enlace a la hoja de estilos CSS de la aplicación -->
     <link rel="stylesheet" href="{{ url_for('transporte_solver_web.static', filename='style.css') }}">
 </head>
 <body>
@@ -43,6 +44,7 @@
         </table>
 
         <div class="button-group">
+            <!-- Botones para agregar proveedores, destinos y resolver el problema -->
             <button onclick="agregarFila()">Agregar Proveedor</button>
             <button onclick="agregarColumna()">Agregar Destino</button>
             <button class="solve-btn" onclick="resolverProblema()">Resolver</button>
@@ -58,9 +60,10 @@
     </div>
 
     <script>
-        let proveedores = 2;
-        let destinos = 2;
+        let proveedores = 2; // Número inicial de proveedores
+        let destinos = 2; // Número inicial de destinos
 
+        // Función para agregar una nueva fila (Proveedor) a la tabla
         function agregarFila() {
             let tabla = document.getElementById("tabla-datos");
             let tbody = tabla.getElementsByTagName("tbody")[0];
@@ -70,9 +73,10 @@
                 row.insertCell(j + 1).innerHTML = '<input type="number">';
             }
             row.insertCell(destinos + 1).innerHTML = '<input type="number">';
-            proveedores++;
+            proveedores++; // Incrementa el contador de proveedores
         }
 
+        // Función para agregar una nueva columna (Destino) a la tabla
         function agregarColumna() {
             let tabla = document.getElementById("tabla-datos");
             let headerRow = document.getElementById("header-row");
@@ -90,15 +94,17 @@
             let rowDemanda = tbody.rows[proveedores];
             let demandaCell = rowDemanda.insertCell(destinos + 1);
             demandaCell.innerHTML = '<input type="number">';
-            destinos++;
+            destinos++; // Incrementa el contador de destinos
         }
 
+        // Función para resolver el problema de transporte
         async function resolverProblema() {
             let costos = [];
             let oferta = [];
             let demanda = [];
             let tabla = document.getElementById("tabla-datos");
 
+            // Extraer los datos de costos y oferta
             for (let i = 0; i < proveedores; i++) {
                 let row = tabla.rows[i + 1];
                 let filaCostos = [];
@@ -109,11 +115,13 @@
                 oferta.push(parseInt(row.cells[destinos + 1].children[0].value) || 0);
             }
 
+            // Extraer los datos de demanda
             let rowDemanda = tabla.rows[proveedores + 1];
             for (let j = 1; j <= destinos; j++) {
                 demanda.push(parseInt(rowDemanda.cells[j].children[0].value) || 0);
             }
 
+            // Enviar los datos al backend para resolver el problema
             let response = await fetch('/transporte_solver_web/solve', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -128,6 +136,7 @@
             }
         }
 
+        // Función para mostrar los resultados en una tabla
         function mostrarTablaResultados(data) {
             let resultadoDiv = document.getElementById("resultado");
             resultadoDiv.innerHTML = "";
@@ -135,6 +144,7 @@
             let table = document.createElement("table");
             table.border = "1";
 
+            // Crear la fila de encabezado con los nombres de los proveedores
             let headerRow = table.insertRow();
             headerRow.insertCell().innerText = "Destinos";
             Object.keys(data).forEach(proveedor => {
@@ -143,6 +153,7 @@
                 headerRow.appendChild(th);
             });
 
+            // Llenar la tabla con los valores asignados
             let destinos = Object.keys(data[Object.keys(data)[0]]);
             destinos.forEach(destino => {
                 let row = table.insertRow();
