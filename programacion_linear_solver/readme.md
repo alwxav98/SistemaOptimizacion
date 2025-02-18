@@ -57,29 +57,25 @@ PuLP es una librería de optimización en Python que permite modelar y resolver 
 ### **Modelo Matemático**
 Dado un problema de programación lineal en su forma estándar:
 
-**Función Objetivo:**
-\[
-Z = c_1X_1 + c_2X_2 + ... + c_nX_n
-\]
+#### **Función Objetivo**:
+$$
+Z = c_1X_1 + c_2X_2 + \dots + c_nX_n
+$$
 
-**Sujeto a restricciones:**
-\[
-a_{11}X_1 + a_{12}X_2 + ... + a_{1n}X_n (≤, =, ≥) b_1
-\]
-\[
-a_{21}X_1 + a_{22}X_2 + ... + a_{2n}X_n (≤, =, ≥) b_2
-\]
-\[
-...
-\]
-\[
-a_{m1}X_1 + a_{m2}X_2 + ... + a_{mn}X_n (≤, =, ≥) b_m
-\]
+#### **Sujeto a restricciones**:
+$$
+\begin{aligned}
+a_{11}X_1 + a_{12}X_2 + \dots + a_{1n}X_n &\leq b_1 \\
+a_{21}X_1 + a_{22}X_2 + \dots + a_{2n}X_n &\leq b_2 \\
+\vdots \\
+a_{m1}X_1 + a_{m2}X_2 + \dots + a_{mn}X_n &\leq b_m
+\end{aligned}
+$$
 
-**Con restricciones de no negatividad:**
-\[
-X_1, X_2, ..., X_n ≥ 0
-\]
+#### **Con restricciones de no negatividad**:
+$$
+X_1, X_2, \dots, X_n \geq 0
+$$
 
 ### **Cómo lo Resuelve PuLP con el Método Simplex**
 1. **Definir el problema:** Se establece si es de maximización o minimización con `pulp.LpMaximize` o `pulp.LpMinimize`.
@@ -92,14 +88,6 @@ X_1, X_2, ..., X_n ≥ 0
    - Determinación de la variable saliente (fila pivote) mediante la regla del mínimo cociente.
    - Actualización iterativa de la tabla hasta que no haya coeficientes positivos en la función objetivo (para maximización).
 6. **Obtener la solución:** Se acceden a los valores óptimos de las variables de decisión y de la función objetivo.
-
-## Contribuciones
-Las contribuciones son bienvenidas. Para ello:
-1. Haz un fork del repositorio.
-2. Crea una nueva rama (`git checkout -b feature-nueva-funcionalidad`).
-3. Realiza tus cambios y haz un commit (`git commit -m 'Agrega nueva funcionalidad'`).
-4. Haz push a la rama (`git push origin feature-nueva-funcionalidad`).
-5. Abre un Pull Request.
 
 ## Licencia
 Este proyecto está bajo la licencia MIT. Para más detalles, consulta el archivo `LICENSE`.
