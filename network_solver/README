@@ -1,71 +1,74 @@
-# Network Solver
+Network Solver
 
-## Descripción
-`Network Solver` es una aplicación web desarrollada con Flask que permite resolver problemas de optimización en redes, incluyendo:
+Descripción
 
-- **Cálculo de la ruta más corta** utilizando el algoritmo de **Dijkstra**.
-- **Determinación del flujo máximo** con el algoritmo de **Edmonds-Karp**.
-- **Cálculo del árbol de expansión mínima** con el algoritmo de **Prim**.
-- **Visualización del grafo** generado.
+Network Solver es una aplicación web desarrollada con Flask que permite resolver problemas de optimización en redes, incluyendo:
 
-## Características
-- 🌐 **Interfaz web simple y amigable**.
-- 🚀 **Implementación de algoritmos clásicos** de optimización en grafos.
-- 📊 **Representación visual del grafo** generado.
-- ⚡ **Interacción mediante peticiones AJAX**.
+- Cálculo de la ruta más corta utilizando el algoritmo de Dijkstra.
+- Determinación del flujo máximo con el algoritmo de Edmonds-Karp.
+- Cálculo del árbol de expansión mínima con el algoritmo de Prim.
+- Visualización del grafo generado.
 
-## Requisitos
+Características
+
+- 🌐 Interfaz web simple y amigable.
+- 🚀 Implementación de algoritmos clásicos de optimización en grafos.
+- 📊 Representación visual del grafo generado.
+- ⚡ Interacción mediante peticiones AJAX.
+
+Requisitos
+
 Para ejecutar la aplicación, necesitas instalar los siguientes paquetes:
 
-```sh
 pip install flask networkx matplotlib
-```
 
-## Instalación
-### 1. Clonar el repositorio:
-```sh
+Instalación
+
+1. Clonar el repositorio:
+
 git clone https://github.com/tuusuario/network_solver.git
 cd network_solver
-```
 
-### 2. Ejecutar la aplicación:
-```sh
+2. Ejecutar la aplicación:
+
 python app.py
-```
 
-### 3. Acceder a la aplicación:
+3. Acceder a la aplicación:
+
 Abre tu navegador y accede a:
-```
-http://localhost:5000/
-```
 
-## Uso
+http://localhost:5000/
+
+Uso
 La aplicación permite:
 
-✅ **Agregar nodos y aristas**: Define la estructura del grafo.
-✅ **Ruta Más Corta**: Ingresa un nodo de inicio y fin para calcular el camino más corto.
-✅ **Flujo Máximo**: Determina el flujo máximo entre un nodo fuente y un nodo sumidero.
-✅ **Árbol de Expansión Mínima**: Obtiene el árbol de costo mínimo.
-✅ **Visualizar el Grafo**: Genera una representación gráfica del grafo.
+✅ Agregar nodos y aristas: Define la estructura del grafo.
+✅ Ruta Más Corta: Ingresa un nodo de inicio y fin para calcular el camino más corto.
+✅ Flujo Máximo: Determina el flujo máximo entre un nodo fuente y un nodo sumidero.
+✅ Árbol de Expansión Mínima: Obtiene el árbol de costo mínimo.
+✅ Visualizar el Grafo: Genera una representación gráfica del grafo.
 
-## 📂 Estructura del Proyecto
-📁 **network_solver/**  
- ┣ 📄 **app.py** - Aplicación principal con Flask  
- ┣ 📂 **static/**  
- ┃ ┗ 🎨 **styles.css** - Estilos de la aplicación  
- ┣ 📂 **templates/**  
- ┃ ┗ 📄 **indexN.html** - Plantilla principal  
- ┗ 📄 **README.md** - Documentación del proyecto  
+📂 Estructura del Proyecto
 
-## 🔗 API Endpoints
+network_solver/
+│-- app.py           Aplicación principal con Flask
+│-- static/
+│   └── styles.css   Estilos de la aplicación
+│-- templates/
+│   └── indexN.html  Plantilla principal
+│-- README.md        Documentación del proyecto
 
-| Método  | Endpoint                         | Descripción                              |
-|---------|----------------------------------|------------------------------------------|
-| `POST`  | `/add_node`                      | Agrega un nodo al grafo                 |
-| `POST`  | `/add_edge`                      | Agrega una arista con peso entre nodos  |
-| `POST`  | `/shortest_path`                 | Calcula la ruta más corta               |
-| `POST`  | `/max_flow`                      | Calcula el flujo máximo                 |
-| `POST`  | `/minimum_spanning_tree`         | Calcula el árbol de expansión mínima    |
-| `GET`   | `/generate_graph`                | Genera una representación visual        |
+🔗 API Endpoints
 
+📌 Métodos Disponibles
+
+| Método  | Endpoint                   | Descripción                            |
+|---------|----------------------------|----------------------------------------|
+| POST    | /add_node                  | Agrega un nodo al grafo                |
+| POST    | /add_edge                  | Agrega una arista con peso entre nodos |
+| POST    | /shortest_path             | Calcula la ruta más corta              |
+| POST    | /max_flow                  | Calcula el flujo máximo                |
+| POST    | /minimum_spanning_tree     | Calcula el árbol de expansión mínima   |
+| GET     | /generate_graph            | Genera una representación visual       |
+🚀
 
