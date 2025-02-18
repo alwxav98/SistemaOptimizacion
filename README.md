@@ -41,8 +41,8 @@ Este proyecto es un sistema modular basado en Flask que permite resolver problem
 │   ├── templates/
 │   │   ├── inicio.html
 │   ├── app.py                      # API del solver
-│   ├── main.py
-│   ├── requirements.txt
+├── main.py
+├── requirements.txt
 ```
 
 ## 🚀 Funcionalidades
