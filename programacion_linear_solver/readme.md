@@ -51,6 +51,48 @@ Luego, abre tu navegador y accede a `http://127.0.0.1:5000/`.
 - **PuLP**: Librería de Python para optimización lineal.
 - **HTML, CSS**: Para la interfaz de usuario.
 
+## Funcionamiento de la Librería PuLP
+PuLP es una librería de optimización en Python que permite modelar y resolver problemas de programación lineal de manera sencilla. Se basa en la formulación estándar de optimización lineal y emplea el **Método Simplex** o **algoritmos de puntos interiores** según el solver utilizado.
+
+### **Modelo Matemático**
+Dado un problema de programación lineal en su forma estándar:
+
+**Función Objetivo:**
+\[
+Z = c_1X_1 + c_2X_2 + ... + c_nX_n
+\]
+
+**Sujeto a restricciones:**
+\[
+a_{11}X_1 + a_{12}X_2 + ... + a_{1n}X_n (≤, =, ≥) b_1
+\]
+\[
+a_{21}X_1 + a_{22}X_2 + ... + a_{2n}X_n (≤, =, ≥) b_2
+\]
+\[
+...
+\]
+\[
+a_{m1}X_1 + a_{m2}X_2 + ... + a_{mn}X_n (≤, =, ≥) b_m
+\]
+
+**Con restricciones de no negatividad:**
+\[
+X_1, X_2, ..., X_n ≥ 0
+\]
+
+### **Cómo lo Resuelve PuLP con el Método Simplex**
+1. **Definir el problema:** Se establece si es de maximización o minimización con `pulp.LpMaximize` o `pulp.LpMinimize`.
+2. **Declarar las variables de decisión:** Se crean variables con restricciones de no negatividad mediante `pulp.LpVariable`.
+3. **Agregar restricciones:** Se incluyen ecuaciones de restricciones como expresiones algebraicas en `pulp.LpProblem`.
+4. **Transformación a forma estándar:** PuLP agrega automáticamente variables de holgura y exceso cuando es necesario para convertir desigualdades en ecuaciones.
+5. **Resolver con Simplex:** Se llama al solver de PuLP, que ejecuta internamente el método Simplex para encontrar la solución óptima:
+   - Construcción de la tabla simplex.
+   - Identificación de la variable entrante (columna pivote) basada en el coeficiente más positivo de la función objetivo.
+   - Determinación de la variable saliente (fila pivote) mediante la regla del mínimo cociente.
+   - Actualización iterativa de la tabla hasta que no haya coeficientes positivos en la función objetivo (para maximización).
+6. **Obtener la solución:** Se acceden a los valores óptimos de las variables de decisión y de la función objetivo.
+
 ## Contribuciones
 Las contribuciones son bienvenidas. Para ello:
 1. Haz un fork del repositorio.
@@ -61,5 +103,13 @@ Las contribuciones son bienvenidas. Para ello:
 
 ## Licencia
 Este proyecto está bajo la licencia MIT. Para más detalles, consulta el archivo `LICENSE`.
+
+
+
+
+
+
+
+
 
 
