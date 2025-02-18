@@ -36,9 +36,11 @@ OPENROUTER_API_KEY=tu_clave_api
 ## Instalación e Integración con el Sistema General
 1️⃣ Clonar el repositorio principal
 -git clone https://github.com/alwxav98/SistemaOptimizacion.git
+
 -cd SistemaOptimizacion
 
 2️⃣ Acceder al submódulo del chatbot
+
 -cd chatbot_analisis_sensibilidad
 
 3️⃣ Ejecutar el chatbot
