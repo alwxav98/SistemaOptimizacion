@@ -3,3 +3,9 @@ pulp
 pandas
 deque
 heapq
+matplotlib
+pyplot
+networkx
+io
+base64
+numpy
