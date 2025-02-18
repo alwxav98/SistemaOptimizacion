@@ -35,22 +35,22 @@ OPENROUTER_API_KEY=tu_clave_api
 
 ## Instalación e Integración con el Sistema General
 1️⃣ Clonar el repositorio principal
+-git clone https://github.com/alwxav98/SistemaOptimizacion.git
+-cd SistemaOptimizacion
 
-git clone https://github.com/alwxav98/SistemaOptimizacion.git
-cd SistemaOptimizacion
 2️⃣ Acceder al submódulo del chatbot
+-cd chatbot_analisis_sensibilidad
 
-cd chatbot_analisis_sensibilidad
 3️⃣ Ejecutar el chatbot
+-python app.py
 
-python app.py
 4️⃣ Acceder a la interfaz
 Abre tu navegador y dirígete a:
+-http://localhost:5000/chatbot
 
-http://localhost:5000/chatbot
 Si deseas regresar al menú principal del sistema, accede a:
 
-http://localhost:5000/
+-http://localhost:5000/
 
 ## Estructura del Proyecto
 El chatbot es un submódulo dentro del sistema SistemaOptimizacion y sigue la siguiente estructura:
