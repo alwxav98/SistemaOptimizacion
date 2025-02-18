@@ -3,24 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <title>Menú Principal</title>
-    <!-- Enlace al archivo de estilos CSS almacenado en la carpeta 'static' -->
+    <!-- 📌 Enlace al archivo de estilos CSS almacenado en la carpeta 'static' -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
-        <!-- Título principal de la aplicación -->
+        <!-- 🔹 Título principal del sistema -->
         <h1 class="title">Sistema para Resolver Problemas de Programación Lineal, Transporte y Redes</h1>
 
-        <!-- Sección donde se presentan las opciones disponibles -->
+        <!-- 🔹 Sección para que el usuario seleccione el módulo deseado -->
         <h2>Seleccione una Aplicación</h2>
         <div class="menu-options">
-            <!-- Enlaces que dirigen a las diferentes funcionalidades del sistema -->
-            <a href="/programacion_linear_solver/" class="menu-button">Programacion Lineal Solver</a>
-            <a href="/network_solver/" class="menu-button">Network Solver</a>
-            <a href="/transporte_solver_web/" class="menu-button">Transporte Solver Web</a>
+            <!-- 📌 Botón para acceder al módulo de Programación Lineal Solver -->
+            <a href="{{ url_for('programacion_linear_solver.index') }}" class="menu-button">📊 Programación Lineal Solver</a>
+            
+            <!-- 📌 Botón para acceder al módulo de Network Solver -->
+            <a href="{{ url_for('network_solver.index') }}" class="menu-button">🌐 Network Solver</a>
+            
+            <!-- 📌 Botón para acceder al módulo de Transporte Solver Web -->
+            <a href="{{ url_for('transporte_solver_web.index') }}" class="menu-button">🚛 Transporte Solver Web</a>
+            
+            <!-- ✅ Botón para acceder al Chatbot de Análisis de Sensibilidad -->
+            <a href="{{ url_for('chatbot.chat') }}" class="menu-button">🔍 Chatbot - Análisis de Sensibilidad</a>
         </div>
 
-        <!-- Sección con la lista de integrantes del proyecto -->
+        <!-- 🔹 Lista de integrantes del proyecto -->
         <h3>Integrantes</h3>
         <ul class="integrantes-list">
             <li>Alison Albuja</li>
