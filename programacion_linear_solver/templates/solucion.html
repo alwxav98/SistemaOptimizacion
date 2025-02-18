@@ -3,25 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <title>Solución</title>
+    <!-- 📌 Enlace a la hoja de estilos específica del módulo de Programación Lineal -->
     <link rel="stylesheet" href="{{ url_for('programacion_linear_solver.static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
+        <!-- 🔹 Título de la página de solución -->
         <h1>Solución Óptima</h1>
+
         <div class="resultado">
-            <p>La solución óptima es Z = {{ solucion['Z'] }}</p>
-            {% for key, value in solucion.items() if key != 'Z' %}
-                <p>{{ key }} = {{ value }}</p>
-            {% endfor %}
-            {% for key, value in variables_holgura_exceso.items() %}
-                <p>{{ key }} = {{ value }}</p>
-            {% endfor %}
+            <!-- 📌 Muestra el valor de la función objetivo Z -->
+            <p class="titulo-solucion">La solución óptima es Z = {{ solucion['Z'] }}</p>
+            
+            <div class="datos-solucion">
+                <!-- 🔹 Muestra los valores de las variables de decisión, excluyendo la función objetivo Z -->
+                {% for key, value in solucion.items() if key != 'Z' %}
+                    <p><strong>{{ key }}</strong> = {{ value }}</p>
+                {% endfor %}
+
+                <!-- 🔹 Muestra las variables de holgura y exceso -->
+                {% for key, value in variables_holgura_exceso.items() %}
+                    <p><strong>{{ key }}</strong> = {{ value }}</p>
+                {% endfor %}
+            </div>
         </div>
 
-        <!-- Botón para regresar al Menú Principal -->
+        <!-- 🔹 Botón para regresar al Menú Principal -->
         <div class="menu-button">
             <a href="/" class="back-button">Regresar al Menú Principal</a>
         </div>
+
+        <!-- 🔹 Botón para enviar los resultados al chatbot de análisis de sensibilidad -->
+        <form action="{{ url_for('chatbot.chat') }}" method="POST">
+            <!-- 📌 Se envían los datos de la solución y las variables de holgura/exceso en formato JSON -->
+            <input type="hidden" name="solucion" value='{{ solucion | tojson }}'>
+            <input type="hidden" name="variables_holgura_exceso" value='{{ variables_holgura_exceso | tojson }}'>
+
+            <!-- 📌 Botón para analizar sensibilidad con el chatbot -->
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-chart-line"></i> Analizar Sensibilidad
+            </button>
+        </form>
     </div>
 </body>
 </html>
