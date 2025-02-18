@@ -1,6 +1,6 @@
 
 
-🤖 #Chatbot de Análisis de Sensibilidad - SistemaOptimizacion
+#Chatbot de Análisis de Sensibilidad - SistemaOptimizacion
 
 📌 ##Descripción
 El Chatbot de Análisis de Sensibilidad es un submódulo del sistema SistemaOptimizacion que permite realizar un análisis detallado de los resultados obtenidos en Programación Lineal. Su función principal es interpretar las soluciones óptimas y generar recomendaciones para maximizar beneficios o minimizar costos.
