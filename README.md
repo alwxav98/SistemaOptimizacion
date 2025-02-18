@@ -1,4 +1,4 @@
-# Solver de Programación Lineal y Redes con Flask y PuLP
+# Sistema de Programación Lineal, Redes y Transporta + IA con Flask
 
 Este proyecto es un sistema modular basado en Flask que permite resolver problemas de **Programación Lineal**, **Transporte** y **Redes** para la optimización matemática.
 
