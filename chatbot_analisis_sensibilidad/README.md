@@ -55,22 +55,7 @@ http://localhost:5000/
 ## Estructura del Proyecto
 El chatbot es un submódulo dentro del sistema SistemaOptimizacion y sigue la siguiente estructura:
 
-SistemaOptimizacion/
-│-- chatbot_analisis_sensibilidad/   # Submódulo del chatbot
-│   │-- app.py          # Aplicación Flask del chatbot
-│   │-- static/
-│   │   └── style.css   # Estilos del chatbot
-│   │-- templates/
-│   │   ├── chat.html   # Interfaz del chatbot
-│   │-- .env            # Variables de entorno (clave API)
-│   │-- README.md       # Documentación del chatbot
-│-- programacion_linear_solver/  # Otro submódulo
-│-- transporte_solver_web/       # Otro submódulo
-│-- network_solver/              # Otro submódulo
-│-- main.py           # Menú principal del sistema
-│-- requirements.txt  # Dependencias del proyecto
-│-- README.md         # Documentación general del sistema
-
+![TODO](https://github.com/user-attachments/assets/1e70c5e9-1d82-42c1-a7cf-d20483cbaaa1)
 
 
 ## API Endpoints
