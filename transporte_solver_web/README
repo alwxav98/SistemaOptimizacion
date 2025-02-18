@@ -1,31 +1,30 @@
+Transporte Solver Web
 
-# Transporte Solver Web
-
-## Descripción
+Descripción
 `transporte_solver__web` es un módulo dentro del proyecto que proporciona una interfaz web para la resolución de problemas de optimización de transporte. Su objetivo es facilitar la interacción del usuario con el solver de transporte a través de una plataforma accesible y funcional.
 
-## Características
+Características
 - Interfaz web intuitiva para la carga de datos y visualización de resultados.
 - Integración con el motor de optimización para resolver problemas de transporte.
 - Generación de reportes de solución de manera estructurada.
 - Diseño modular para facilitar futuras mejoras y mantenibilidad.
 
-## Requisitos
+Requisitos
 Para el funcionamiento del módulo, se requieren las siguientes dependencias y configuraciones:
 - Lenguaje de programación: Python
 - Framework web: Flask u otro compatible
 - Dependencias especificadas en el archivo `requirements.txt`
 
-## Instalación - Clonar el repositorio:
+Instalación - Clonar el repositorio:
 Para obtener el código fuente, puedes clonar el repositorio con el siguiente comando:
 ```bash
 git clone https://github.com/alwxav98/SistemaOptimizacion.git
 ```
 
-## Uso
+Uso
 Este módulo permite a los usuarios interactuar con la herramienta de optimización de transporte a través de un navegador web. La aplicación facilita la entrada de datos, el procesamiento del problema y la visualización de los resultados obtenidos.
 
-### La aplicación permite:
+La aplicación permite:
 - Definir y cargar datos de oferta y demanda.
 - Ejecutar algoritmos de optimización.
 - Visualizar las soluciones obtenidas de forma clara y estructurada.
