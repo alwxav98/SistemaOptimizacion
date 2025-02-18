@@ -22,7 +22,7 @@ Este chatbot se encuentra integrado dentro del sistema general y permite interac
 📂 Historial de Conversaciones para seguimiento de análisis previos.
 🤖 Uso de OpenRouter GPT para respuestas inteligentes y contextualizadas.
 
-📋 ## Requisitos
+## Requisitos
 Este submódulo forma parte del repositorio principal SistemaOptimizacion, pero requiere instalar dependencias específicas para su correcto funcionamiento:
 
 pip install flask openai numpy opencv-python pytesseract pillow python-dotenv
@@ -70,6 +70,7 @@ SistemaOptimizacion/
 │-- main.py           # Menú principal del sistema
 │-- requirements.txt  # Dependencias del proyecto
 │-- README.md         # Documentación general del sistema
+
 
 
 ## API Endpoints
