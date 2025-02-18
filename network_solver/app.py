@@ -5,29 +5,31 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import io
 import base64
-
+# Se define un Blueprint para la aplicación Flask que maneja la lógica de resolución de problemas de redes.
 network_solver = Blueprint("network_solver", __name__, template_folder="templates",
                            static_folder="static")
 
-
+# Clase que representa un grafo con métodos para resolver diferentes problemas de optimización.
 class Graph:
     def __init__(self):
-        self.nodes = set()
-        self.edges = {}
-        self.capacity = {}
+        self.nodes = set()  # Conjunto de nodos
+        self.edges = {}  # Diccionario para almacenar las aristas y sus pesos
+        self.capacity = {}  # Diccionario para capacidades en el problema de flujo máximo
 
     def add_node(self, value):
+        """Agrega un nodo al grafo."""
         if value not in self.nodes:
             self.nodes.add(value)
             self.edges[value] = {}
             self.capacity[value] = {}
 
-    def add_edge(self, from_node, to_node, weight):
+     def add_edge(self, from_node, to_node, weight):
+        """Agrega una arista con un peso entre dos nodos."""
         if from_node in self.nodes and to_node in self.nodes:
             self.edges[from_node][to_node] = int(weight)
             self.edges[to_node][from_node] = int(weight)
             self.capacity[from_node][to_node] = int(weight)
-            self.capacity[to_node][from_node] = 0
+            self.capacity[to_node][from_node] = 0 # Capacidad inversa para el algoritmo de flujo máximo
 
     def dijkstra(self, start, end):
         queue = [(0, start)]
@@ -117,10 +119,10 @@ class Graph:
 
         return {"mst": mst, "total_weight": total_weight}
 
-
+# Se inicializa un objeto de la clase Graph
 graph = Graph()
 
-
+# Definición de rutas en la API Flask para manejar las operaciones del grafo
 @network_solver.route("/")
 def index():
     return render_template("indexN.html", nodes=list(graph.nodes),
