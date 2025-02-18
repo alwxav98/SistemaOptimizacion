@@ -27,12 +27,8 @@ MODELO PROGRAMACION LINEAL
 - PuLP
 
 ### Instalación
-1. Clonar el repositorio:
-   ```sh
-   git clone https://github.com/tu_usuario/tu_repositorio.git
-   cd tu_repositorio
-   ```
-2. Instalar dependencias:
+
+Instalar dependencias:
    ```sh
    pip install flask pulp
    ```
