@@ -1,72 +1,67 @@
 body {
-    font-family: Arial, sans-serif;
     background-color: #121212;
-    color: white;
+    color: #ffffff;
+    font-family: Arial, sans-serif;
     text-align: center;
-    padding: 20px;
 }
 
 .container {
-    background-color: #1e1e1e;
-    padding: 20px;
-    border-radius: 10px;
-    width: 50%;
+    max-width: 600px;
     margin: auto;
-    box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.2);
+    padding: 20px;
+    background-color: #1e1e1e;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.1);
 }
 
-input, select, button {
-    padding: 10px;
-    margin: 10px;
-    border-radius: 5px;
-    border: none;
-    font-size: 16px;
+h1, h2, h3 {
+    color: #61dafb;
 }
 
-button {
-    background-color: #007BFF;
-    color: white;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #0056b3;
+.menu-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px 0;
 }
 
 .menu-button {
-    margin-top: 20px;
-    text-align: center;
-}
-
-.back-button {
-    display: inline-block;
-    padding: 10px 20px;
+    display: block;
+    padding: 15px;
     background-color: #007BFF;
     color: white;
     text-decoration: none;
     border-radius: 5px;
-    font-size: 16px;
-}
-
-.back-button:hover {
-    background-color: #0056b3;
-}
-
-.resultado {
-    background-color: #28a745;
-    padding: 15px;
-    border-radius: 5px;
-    width: fit-content;
-    margin: auto;
-    color: white;
+    font-size: 18px;
     font-weight: bold;
 }
 
-input[type="text"], input[type="number"] {
-    width: 80px; /* Reduce el tamaño del input */
-    padding: 5px;
-    font-size: 14px;
-    text-align: center;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+.menu-button:hover {
+    background-color: #0056b3;
 }
+
+.integrantes-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.integrantes-list li {
+    font-size: 16px;
+    padding: 5px;
+    background-color: #333;
+    margin: 5px 0;
+    border-radius: 5px;
+}
+
+.funcion-objetivo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.funcion-objetivo input {
+    width: 50px;
+    text-align: center;
+}
+
