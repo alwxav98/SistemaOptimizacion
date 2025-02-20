@@ -113,3 +113,21 @@ li {
 .back-button:hover {
     background-color: #0056b3
 }
+
+.shortest-path-container {
+    display: flex;
+    justify-content: center;
+    gap: 50px; /* Espacio entre los elementos */
+    align-items: center;
+}
+
+.shortest-path-box {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.shortest-path-box label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
