@@ -1,3 +1,4 @@
+/* Estilo general */
 body {
     background-color: #121212;
     color: #ffffff;
@@ -5,8 +6,22 @@ body {
     text-align: center;
 }
 
+textarea#contexto_problema {
+    width: 100%; /* Hace que ocupe todo el ancho del contenedor */
+    height: 150px; /* Ajusta la altura según lo necesites */
+    font-size: 16px; /* Aumenta el tamaño del texto */
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: #222; /* Color oscuro si usas modo oscuro */
+    color: white;
+    resize: vertical; /* Permite redimensionar verticalmente */
+}
+
+
+/* Contenedor principal */
 .container {
-    max-width: 600px;
+    max-width: 500px;
     margin: auto;
     padding: 20px;
     background-color: #1e1e1e;
@@ -14,18 +29,134 @@ body {
     box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.1);
 }
 
-h1, h2, h3 {
+/* Títulos */
+h1, h2 {
     color: #61dafb;
+    margin-bottom: 20px;
 }
 
-.menu-options {
+/* Resultado */
+.resultado {
+    margin-bottom: 20px;
+}
+
+.titulo-solucion {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+/* Datos de la solución */
+.datos-solucion {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    margin: 20px 0;
+    align-items: center;
 }
 
+.solucion-item {
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+/* Estilización de formularios */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+/* Inputs generales */
+.form-group input,
+.form-group select {
+    width: 80%;
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #007BFF;
+    text-align: center;
+    background-color: #f8f9fa;
+    color: #000;
+}
+
+/* Estilización del checkbox */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.checkbox-group label {
+    order: -1;
+}
+
+/* Estilización de la función objetivo */
+.funcion-objetivo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+/* Estilización de las restricciones */
+.restricciones {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+.restriccion {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.variable-label {
+    font-weight: bold;
+}
+
+/* Inputs más pequeños para las variables */
+.input-small {
+    width: 50px;
+    padding: 5px;
+    font-size: 16px;
+    text-align: center;
+    border-radius: 5px;
+    border: 1px solid #007BFF;
+}
+
+/* Estilización de los botones */
+.btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+    margin-top: 15px;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+/* Estilización del botón de regresar */
 .menu-button {
+    margin-top: 20px;
+}
+
+.menu-button a {
     display: block;
     padding: 15px;
     background-color: #007BFF;
@@ -36,32 +167,30 @@ h1, h2, h3 {
     font-weight: bold;
 }
 
-.menu-button:hover {
+.menu-button a:hover {
     background-color: #0056b3;
 }
 
-.integrantes-list {
-    list-style: none;
-    padding: 0;
-    margin-top: 20px;
-}
-
-.integrantes-list li {
+/* Estilización del botón de análisis */
+.btn-analisis {
+    display: block;
+    width: 80%;
+    padding: 12px;
+    margin: 20px auto;
     font-size: 16px;
-    padding: 5px;
-    background-color: #333;
-    margin: 5px 0;
+    background-color: #28a745;
+    color: white;
+    border: none;
     border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
 }
 
-.funcion-objetivo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.btn-analisis:hover {
+    background-color: #218838;
 }
 
-.funcion-objetivo input {
-    width: 50px;
-    text-align: center;
+/* Estilización de icono dentro del botón */
+.btn-analisis i {
+    margin-right: 8px;
 }
-
