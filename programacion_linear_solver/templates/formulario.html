@@ -4,56 +4,54 @@
     <meta charset="UTF-8">
     <title>Ingresar Problema</title>
     <link rel="stylesheet" href="{{ url_for('programacion_linear_solver.static', filename='style.css') }}">
+    <input type="hidden" name="contexto_problema" value="{{ contexto_problema }}">
+
 </head>
 <body>
     <div class="container">
         <h1>Definir Problema</h1>
+        
         <form method="post">
-            <label>Tipo de Objetivo:</label>
-            <select name="objetivo_tipo">
-                <option value="Minimizar">Minimizar</option>
-                <option value="Maximizar">Maximizar</option>
-            </select>
-            <br>
+            <!-- Tipo de Objetivo -->
+            <div class="form-group">
+                <label for="objetivo_tipo">Tipo de Objetivo:</label>
+                <select id="objetivo_tipo" name="objetivo_tipo">
+                    <option value="Minimizar">Minimizar</option>
+                    <option value="Maximizar">Maximizar</option>
+                </select>
+            </div>
 
+            <!-- Función Objetivo -->
             <h2>Función Objetivo</h2>
             <div class="funcion-objetivo">
-                {% if es_dualidad %}
-                    W =
-                {% else %}
-                    Z =
-                {% endif %}
+                <span class="variable-label">{% if es_dualidad %} W = {% else %} Z = {% endif %}</span>
                 {% for i in range(num_variables) %}
-                    <input type="text" name="obj_{{i}}" required> 
-                    {% if es_dualidad %}
-                        Y{{i+1}}
-                    {% else %}
-                        X{{i+1}}
-                    {% endif %}
+                    <input type="text" name="obj_{{i}}" required class="input-small"> 
+                    <span class="variable-label">{% if es_dualidad %} Y{{i+1}} {% else %} X{{i+1}} {% endif %}</span>
                 {% endfor %}
             </div>
-            
 
+            <!-- Restricciones -->
             <h2>Restricciones</h2>
-            {% for i in range(num_restricciones) %}
-                {% for j in range(num_variables) %}
-                    <input type="text" name="res_{{i}}_{{j}}" required> 
-                    {% if es_dualidad %}
-                        Y{{j+1}}
-                    {% else %}
-                        X{{j+1}}
-                    {% endif %}
+            <div class="restricciones">
+                {% for i in range(num_restricciones) %}
+                    <div class="restriccion">
+                        {% for j in range(num_variables) %}
+                            <input type="text" name="res_{{i}}_{{j}}" required class="input-small"> 
+                            <span class="variable-label">{% if es_dualidad %} Y{{j+1}} {% else %} X{{j+1}} {% endif %}</span>
+                        {% endfor %}
+                        <select name="signo_{{i}}" class="signo">
+                            <option value="<=">≤</option>
+                            <option value=">=">≥</option>
+                            <option value="=">=</option>
+                        </select>
+                        <input type="text" name="const_{{i}}" required class="input-small">
+                    </div>
                 {% endfor %}
-                <select name="signo_{{i}}">
-                    <option value="<=">≤</option>
-                    <option value=">=">≥</option>
-                    <option value="=">=</option>
-                </select>
-                <input type="text" name="const_{{i}}" required>
-                <br><br>
-            {% endfor %}
-            
-            <button type="submit">Resolver</button>
+            </div>
+
+            <!-- Botón Resolver -->
+            <button type="submit" class="btn">Resolver</button>
         </form>
 
         <!-- Botón para regresar al Menú Principal -->
