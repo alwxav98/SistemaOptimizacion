@@ -2,54 +2,95 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Solución</title>
+    <title>Solución Óptima</title>
     <link rel="stylesheet" href="{{ url_for('programacion_linear_solver.static', filename='style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
 </head>
 <body>
     <div class="container">
         <h1>Solución Óptima</h1>
 
+        <div class="contexto">
+            <h2>Contexto del Problema</h2>
+            <p>{{ contexto_problema }}</p>
+        </div>
+
         <div class="resultado">
             <p class="titulo-solucion">
-                La solución óptima es 
-                {% if es_dualidad %}
-                    W = {{ solucion['W'] }}
-                {% else %}
-                    Z = {{ solucion['Z'] }}
-                {% endif %}
+                La solución óptima es {{ obj_name }} = {{ solucion[obj_name] }}
             </p>
             
             <div class="datos-solucion">
-                {% for key, value in solucion.items() if key != 'Z' and key != 'W' %}
-                    <p><strong>
-                        {% if es_dualidad and 'X' in key %}
-                            {{ key.replace('X', 'Y') }}
-                        {% else %}
-                            {{ key }}
-                        {% endif %}
-                    </strong> = {{ value }}</p>
-                {% endfor %}
-
-                {% for key, value in variables_holgura_exceso.items() %}
-                    <p><strong>{{ key }}</strong> = {{ value }}</p>
+                {% for key, value in solucion.items() if key != obj_name %}
+                    <p class="solucion-item"><strong>{{ key }}</strong> = {{ value }}</p>
                 {% endfor %}
             </div>
         </div>
 
-        <!-- Botón para regresar al Menú Principal -->
         <div class="menu-button">
             <a href="/" class="back-button">Regresar al Menú Principal</a>
         </div>
 
-        <!-- Botón para enviar los resultados al chatbot de análisis de sensibilidad -->
-        <form action="{{ url_for('chatbot.chat') }}" method="POST">
-            <input type="hidden" name="solucion" value='{{ solucion | tojson }}'>
-            <input type="hidden" name="variables_holgura_exceso" value='{{ variables_holgura_exceso | tojson }}'>
-            <button type="submit" class="btn btn-primary w-100">
-                <i class="fas fa-chart-line"></i> Analizar Sensibilidad
-            </button>
-        </form>
-        
+        <!-- Botón para Análisis de Sensibilidad -->
+        <button id="analizar-btn" class="btn btn-success">Analizar Sensibilidad</button>
+
+        <!-- Aquí se mostrará el resultado del análisis de sensibilidad -->
+        <div id="analisis-sensibilidad"></div>
+
+        <script>
+            $(document).ready(function() {
+                $("#analizar-btn").click(function() {
+                    $("#analizar-btn").prop("disabled", true).text("Analizando...");
+                    $("#analisis-sensibilidad").html("<p>🔍 Analizando sensibilidad...</p>");
+
+                    let datos = {
+                        contexto_problema: {{ contexto_problema | tojson }},
+                        solucion: {{ solucion | tojson }},
+                        variables_holgura_exceso: {{ variables_holgura_exceso | tojson }}
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ url_for('programacion_linear_solver.analizar_sensibilidad_ajax') }}",
+                        contentType: "application/json",
+                        data: JSON.stringify(datos),
+                        success: function(response) {
+                            if (typeof response === "object" && response.analisis) {
+                                let partes = response.analisis.split("**Interpretación final:**");
+
+                                let justificacion = partes[0] ? partes[0].replace("**Justificación matemática:**", "").trim() : "No se encontró justificación matemática.";
+                                let interpretacion = partes[1] ? partes[1] : "No se encontró interpretación final.";
+
+                                $("#analisis-sensibilidad").html(`
+                                    <h3>🔎 Análisis de Sensibilidad</h3>
+                                    <p>${justificacion}</p>
+                                    
+                                    <h4>💡 Interpretación Final:</h4>
+                                    <p>${interpretacion}</p>
+                                `);
+
+                                // Renderizar ecuaciones en MathJax si hay fórmulas en LaTeX
+                                if (window.MathJax) {
+                                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, "analisis-sensibilidad"]);
+                                }
+                            } else {
+                                $("#analisis-sensibilidad").html("<p>❌ Error en la respuesta del análisis de sensibilidad.</p>");
+                            }
+                            $("#analizar-btn").prop("disabled", false).text("Analizar Sensibilidad");
+                        },
+                        error: function(xhr, status, error) {
+                            console.log("Error en la solicitud AJAX:", error);
+                            $("#analisis-sensibilidad").html("<p>❌ Error al obtener el análisis de sensibilidad.</p>");
+                            $("#analizar-btn").prop("disabled", false).text("Analizar Sensibilidad");
+                        }
+                    });
+
+                });
+            });
+        </script>
     </div>
 </body>
 </html>
