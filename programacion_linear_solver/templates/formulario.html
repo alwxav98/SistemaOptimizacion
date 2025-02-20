@@ -17,14 +17,32 @@
             <br>
 
             <h2>Función Objetivo</h2>
-            {% for i in range(num_variables) %}
-                <input type="text" name="obj_{{i}}" required> X{{i+1}}
-            {% endfor %}
+            <div class="funcion-objetivo">
+                {% if es_dualidad %}
+                    W =
+                {% else %}
+                    Z =
+                {% endif %}
+                {% for i in range(num_variables) %}
+                    <input type="text" name="obj_{{i}}" required> 
+                    {% if es_dualidad %}
+                        Y{{i+1}}
+                    {% else %}
+                        X{{i+1}}
+                    {% endif %}
+                {% endfor %}
+            </div>
+            
 
             <h2>Restricciones</h2>
             {% for i in range(num_restricciones) %}
                 {% for j in range(num_variables) %}
-                    <input type="text" name="res_{{i}}_{{j}}" required> X{{j+1}}
+                    <input type="text" name="res_{{i}}_{{j}}" required> 
+                    {% if es_dualidad %}
+                        Y{{j+1}}
+                    {% else %}
+                        X{{j+1}}
+                    {% endif %}
                 {% endfor %}
                 <select name="signo_{{i}}">
                     <option value="<=">≤</option>
@@ -32,8 +50,7 @@
                     <option value="=">=</option>
                 </select>
                 <input type="text" name="const_{{i}}" required>
-                <br>
-                <br>
+                <br><br>
             {% endfor %}
             
             <button type="submit">Resolver</button>
