@@ -9,19 +9,32 @@
     <div class="container">
         <h1>Ingrese los Datos del Problema</h1>
         <form method="post">
-            <label>Cantidad de Variables:</label>
-            <input type="number" name="num_variables" required>
-            <br>
-            <label>Cantidad de Restricciones:</label>
-            <input type="number" name="num_restricciones" required>
-            <br>
-            <label>¿Es un problema de dualidad?</label>
-            <input type="checkbox" name="es_dualidad" value="si">
-            <br>
-            <button type="submit">Continuar</button>
+
+            <div class="form-group">
+                <label for="contexto_problema">Contexto del Problema:</label>
+                <textarea id="contexto_problema" name="contexto_problema" rows="4" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="num_variables">Cantidad de Variables:</label>
+                <input type="number" id="num_variables" name="num_variables" required>
+            </div>
+
+            <div class="form-group">
+                <label for="num_restricciones">Cantidad de Restricciones:</label>
+                <input type="number" id="num_restricciones" name="num_restricciones" required>
+            </div>
+
+
+
+            <div class="checkbox-group">
+                <label for="es_dualidad">¿Es un problema de dualidad?</label>
+                <input type="checkbox" id="es_dualidad" name="es_dualidad" value="si">
+            </div>
+
+            <button type="submit" class="btn">Continuar</button>
         </form>
 
-        <!-- Botón para regresar al Menú Principal -->
         <div class="menu-button">
             <a href="/" class="back-button">Regresar al Menú Principal</a>
         </div>
