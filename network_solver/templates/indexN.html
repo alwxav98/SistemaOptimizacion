@@ -19,33 +19,95 @@
         <h3>Nodos Agregados:</h3>
         <ul id="nodeList"></ul>
 
+        <h3>Eliminar Nodo</h3>
+        <div class="shortest-path-container">
+            <select id="deleteNode"></select>
+        </div>
+        <button id="deleteNodeButton">Eliminar Nodo</button>
+
         <h3>Agregar Arista</h3>
+        <div class="shortest-path-container">
+            <div class="shortest-path-box">
+                <label for="startNode">Inicio:</label>
+                <select id="fromNode"></select>
+            </div>
+            <div class="shortest-path-box">
+                <label for="endNode">Fin:</label>
+                <select id="toNode"></select>
+            </div>
+        </div>
+        <br>
         <form id="edgeForm">
-            <input type="text" id="fromNode" placeholder="Desde">
-            <input type="text" id="toNode" placeholder="Hasta">
             <input type="number" id="weight" placeholder="Peso">
             <button type="submit">Agregar</button>
         </form>
 
+
         <h3>Aristas Agregadas:</h3>
         <ul id="edgeList"></ul>
 
+        <!--<h3>Eliminar Arista</h3>
+        <div class="shortest-path-container">
+            <select id="deleteEdge"></select>
+        </div>
+        <button id="deleteEdgeButton">Eliminar Arista</button>-->
+
+
         <h3>Ruta Más Corta</h3>
+        <div class="shortest-path-container">
+            <div class="shortest-path-box">
+                <label for="startNode">Inicio:</label>
+                <select id="startNode"></select>
+            </div>
+            <div class="shortest-path-box">
+                <label for="endNode">Fin:</label>
+                <select id="endNode"></select>
+            </div>
+        </div>
+        <br>
         <form id="pathForm">
-            <input type="text" id="startNode" placeholder="Inicio">
-            <input type="text" id="endNode" placeholder="Fin">
-            <button type="submit">Calcular</button>
+            <button type="submit">Calcular Ruta</button>
         </form>
+
 
         <h3>Árbol de Expansión Mínima</h3>
         <button id="mstButton">Calcular</button>
 
         <h3>Flujo Máximo</h3>
+        <div class="shortest-path-container">
+            <div class="shortest-path-box">
+                <label for="startNode">Inicio:</label>
+                <select id="sourceNode"></select>
+            </div>
+            <div class="shortest-path-box">
+                <label for="endNode">Fin:</label>
+                <select id="sinkNode"></select>
+            </div>
+        </div>
+        <br>
         <form id="flowForm">
-            <input type="text" id="sourceNode" placeholder="Fuente">
-            <input type="text" id="sinkNode" placeholder="Sumidero">
             <button type="submit">Calcular</button>
         </form>
+
+
+        <h3>Flujo de Costo Mínimo</h3>
+        <div class="shortest-path-container">
+            <div class="shortest-path-box">
+                <label for="costSourceNode">Inicio:</label>
+                <select id="costSourceNode"></select>
+            </div>
+            <div class="shortest-path-box">
+                <label for="costSinkNode">Fin:</label>
+                <select id="costSinkNode"></select>
+            </div>
+        </div>
+        <br>
+        <form id="minCostFlowForm">
+            <button type="submit">Calcular</button>
+        </form>
+
+        
+
 
         <h3>Resultados:</h3>
 
@@ -59,16 +121,25 @@
                 <h4>Árbol de Expansión Mínima</h4>
                 <p id="mstResult">---</p>
             </div>
-
+            
             <div class="result-box">
                 <h4>Flujo Máximo</h4>
                 <p id="maxFlowResult">---</p>
             </div>
+
+            <div class="result-box">
+                <h4>Flujo de Costo Mínimo</h4>
+                <p id="minCostFlowResult">---</p>
+            </div>
+
         </div>
+
 
         <h3>Visualización del Grafo</h3>
         <button id="graphButton">Generar Grafo</button>
         <img id="graphImage" src="" alt="Grafo de la Red" style="max-width: 100%; margin-top: 20px;">
+
+
 
         <!-- Botón para regresar al Menú Principal -->
         <div class="menu-button">
@@ -89,6 +160,11 @@
         }
 
         function updateNodes(data) {
+            if (data.error) {
+                alert(data.error); // Muestra un mensaje si el nodo ya existe
+                return;
+            }
+
             let nodeList = document.getElementById("nodeList");
             nodeList.innerHTML = "";
             data.nodes.forEach(node => {
@@ -96,7 +172,84 @@
                 li.textContent = node;
                 nodeList.appendChild(li);
             });
+
+            updateNodeDropdowns(data.nodes);
         }
+
+        function updateNodeDropdowns(nodes) {
+            let selects = [
+                "fromNode", "toNode",
+                "startNode", "endNode",
+                "sourceNode", "sinkNode",
+                "costSourceNode", "costSinkNode",
+                "deleteNode", // ✅ Agregar selector para eliminar nodos
+                "deleteFromNode", "deleteToNode" // ✅ Agregar para eliminar aristas
+            ];
+
+            selects.forEach(id => {
+                let select = document.getElementById(id);
+                if (select) {
+                    select.innerHTML = ""; // Limpiar opciones previas
+                    nodes.forEach(node => {
+                        let option = document.createElement("option");
+                        option.value = option.textContent = node;
+                        select.appendChild(option);
+                    });
+                }
+            });
+        }
+
+
+        document.getElementById("nodeForm").onsubmit = function(event) {
+            event.preventDefault();
+            fetchUpdate("/network_solver/add_node", { node: document.getElementById("nodeInput").value }, updateNodes);
+        };
+
+        // Cargar nodos al inicio
+        async function loadNodes() {
+            let response = await fetch("/network_solver/get_nodes");
+            let data = await response.json();
+            
+            if (data.nodes && data.nodes.length > 0) {
+                updateNodeDropdowns(data.nodes);
+            }
+        }
+
+
+        window.onload = loadNodes;
+
+        async function loadEdges() {
+            let response = await fetch("/network_solver/get_edges");
+            let data = await response.json();
+            updateEdgeDropdown(data.edges);
+        }
+
+        function updateEdgeDropdown(edges) {
+            let edgeSelect = document.getElementById("deleteEdge");
+            edgeSelect.innerHTML = ""; // Limpiar opciones previas
+            
+            if (edges.length === 0) {
+                let option = document.createElement("option");
+                option.value = "";
+                option.textContent = "No hay aristas disponibles";
+                edgeSelect.appendChild(option);
+                return;
+            }
+
+            edges.forEach(edge => {
+                let option = document.createElement("option");
+                option.value = `${edge[0]} - ${edge[1]}`;
+                option.textContent = `${edge[0]} - ${edge[1]} (Peso: ${edge[2]})`;
+                edgeSelect.appendChild(option);
+            });
+        }
+
+        // ✅ Cargar aristas al inicio
+        window.onload = function() {
+            loadNodes();
+            loadEdges();
+        };
+
 
         function updateEdges(data) {
             let edgeList = document.getElementById("edgeList");
@@ -160,6 +313,92 @@
             let data = await response.json();
             document.getElementById("graphImage").src = data.graph_img;
         };
+
+        document.getElementById("minCostFlowForm").onsubmit = async function(event) {
+            event.preventDefault();
+            let source = document.getElementById("costSourceNode").value;
+            let sink = document.getElementById("costSinkNode").value;
+
+            let response = await fetch("/network_solver/min_cost_max_flow", {
+                method: "POST",
+                body: new URLSearchParams({ "source": source, "sink": sink }),
+                headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            });
+
+            let data = await response.json();
+            if (data.status === "success") {
+                document.getElementById("minCostFlowResult").innerText = `Costo: ${data.cost}`;
+            } else {
+                document.getElementById("minCostFlowResult").innerText = "Error: " + data.message;
+            }
+        };
+
+        document.getElementById("deleteNodeButton").onclick = async function() {
+            let node = document.getElementById("deleteNode").value;
+            
+            let response = await fetch("/network_solver/remove_node", {
+                method: "POST",
+                body: new URLSearchParams({ "node": node }),
+                headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            });
+
+            let data = await response.json();
+            
+            // ✅ Actualizar la lista de nodos y aristas después de eliminar
+            updateNodeDropdowns(data.nodes);
+            updateEdgeDropdown(data.edges);
+        };
+
+
+        document.getElementById("deleteEdgeButton").onclick = async function() {
+            let edge = document.getElementById("deleteEdge").value;
+            
+            if (!edge) {
+                alert("No hay aristas para eliminar.");
+                return;
+            }
+
+            let response = await fetch("/network_solver/remove_edge", {
+                method: "POST",
+                body: new URLSearchParams({ "edge": edge }),
+                headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            });
+
+            let data = await response.json();
+
+            // ✅ Actualizar la lista de aristas después de eliminar
+            updateEdgeDropdown(data.edges);
+        };
+
+
+        function updateEdgeDropdown(edges) {
+            let edgeSelect = document.getElementById("deleteEdge");
+            edgeSelect.innerHTML = ""; // Limpiar opciones previas
+            
+            edges.forEach(edge => {
+                let option = document.createElement("option");
+                option.value = `${edge[0]} - ${edge[1]}`;
+                option.textContent = `${edge[0]} - ${edge[1]} (Peso: ${edge[2]})`;
+                edgeSelect.appendChild(option);
+            });
+        }
+
+        document.getElementById("deleteEdgeButton").onclick = async function() {
+            let edge = document.getElementById("deleteEdge").value;
+            
+            let response = await fetch("/network_solver/remove_edge", {
+                method: "POST",
+                body: new URLSearchParams({ "edge": edge }),
+                headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            });
+
+            let data = await response.json();
+
+            // ✅ Actualizar la lista de aristas después de eliminar
+            updateEdgeDropdown(data.edges);
+        };
+
+
     </script>
 </body>
 </html>
