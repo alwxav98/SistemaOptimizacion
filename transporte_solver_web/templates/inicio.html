@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solver de Transporte</title>
-    <!-- Enlace a la hoja de estilos CSS de la aplicación -->
     <link rel="stylesheet" href="{{ url_for('transporte_solver_web.static', filename='style.css') }}">
 </head>
 <body>
@@ -44,14 +43,22 @@
         </table>
 
         <div class="button-group">
-            <!-- Botones para agregar proveedores, destinos y resolver el problema -->
             <button onclick="agregarFila()">Agregar Proveedor</button>
             <button onclick="agregarColumna()">Agregar Destino</button>
             <button class="solve-btn" onclick="resolverProblema()">Resolver</button>
         </div>
 
+        <div id="mensaje-equilibrio"></div>
+
+        <h3>Tabla Equilibrada:</h3>
+        <div id="tabla-equilibrada"></div>  <!-- ✅ Aquí se mostrará la tabla del problema equilibrado -->
         <h3>Resultado:</h3>
+        
         <div id="resultado"></div>
+
+        <h3>Costo Total:</h3>
+        <p id="costo-total">---</p>
+
 
         <!-- Botón para regresar al Menú Principal -->
         <div class="menu-button">
@@ -60,10 +67,9 @@
     </div>
 
     <script>
-        let proveedores = 2; // Número inicial de proveedores
-        let destinos = 2; // Número inicial de destinos
+        let proveedores = 2;
+        let destinos = 2;
 
-        // Función para agregar una nueva fila (Proveedor) a la tabla
         function agregarFila() {
             let tabla = document.getElementById("tabla-datos");
             let tbody = tabla.getElementsByTagName("tbody")[0];
@@ -73,10 +79,9 @@
                 row.insertCell(j + 1).innerHTML = '<input type="number">';
             }
             row.insertCell(destinos + 1).innerHTML = '<input type="number">';
-            proveedores++; // Incrementa el contador de proveedores
+            proveedores++;
         }
 
-        // Función para agregar una nueva columna (Destino) a la tabla
         function agregarColumna() {
             let tabla = document.getElementById("tabla-datos");
             let headerRow = document.getElementById("header-row");
@@ -94,17 +99,15 @@
             let rowDemanda = tbody.rows[proveedores];
             let demandaCell = rowDemanda.insertCell(destinos + 1);
             demandaCell.innerHTML = '<input type="number">';
-            destinos++; // Incrementa el contador de destinos
+            destinos++;
         }
 
-        // Función para resolver el problema de transporte
         async function resolverProblema() {
             let costos = [];
             let oferta = [];
             let demanda = [];
             let tabla = document.getElementById("tabla-datos");
 
-            // Extraer los datos de costos y oferta
             for (let i = 0; i < proveedores; i++) {
                 let row = tabla.rows[i + 1];
                 let filaCostos = [];
@@ -115,13 +118,11 @@
                 oferta.push(parseInt(row.cells[destinos + 1].children[0].value) || 0);
             }
 
-            // Extraer los datos de demanda
             let rowDemanda = tabla.rows[proveedores + 1];
             for (let j = 1; j <= destinos; j++) {
                 demanda.push(parseInt(rowDemanda.cells[j].children[0].value) || 0);
             }
 
-            // Enviar los datos al backend para resolver el problema
             let response = await fetch('/transporte_solver_web/solve', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -129,14 +130,93 @@
             });
 
             let resultado = await response.json();
+            let resultadoDiv = document.getElementById("resultado");
+            let mensajeDiv = document.getElementById("mensaje-equilibrio");
+            let equilibradaDiv = document.getElementById("tabla-equilibrada");
+
+            console.log("🔹 RESPUESTA DEL SERVIDOR:", resultado); // ✅ Verificar datos en consola
+
+            resultadoDiv.innerHTML = "";  
+            mensajeDiv.innerHTML = "";  
+            equilibradaDiv.innerHTML = "";  // ✅ Limpiar la tabla equilibrada
+
             if (resultado.status === "success") {
+                // ✅ Mostrar mensaje de equilibrio
+                let mensaje = document.createElement("p");
+                mensaje.innerText = resultado.mensaje;
+                mensaje.style.fontWeight = "bold";
+                mensaje.style.fontSize = "18px";
+                mensaje.style.padding = "10px";
+                mensaje.style.borderRadius = "5px";
+                mensaje.style.textAlign = "center";
+
+                if (!resultado.equilibrado) {
+                    mensaje.style.color = "white";
+                    mensaje.style.backgroundColor = "red";  
+                    mostrarTablaEquilibrada(resultado.tabla_equilibrada); // ✅ Solo se muestra si el problema fue equilibrado
+                } else {
+                    mensaje.style.color = "black";
+                    mensaje.style.backgroundColor = "lightgreen";  
+                }
+
+                mensajeDiv.appendChild(mensaje);
+
+                // ✅ Mostrar la tabla de resultados
                 mostrarTablaResultados(resultado.solucion);
             } else {
-                document.getElementById("resultado").innerText = "Error: " + resultado.message;
+                resultadoDiv.innerHTML = `<p style="color: red; font-weight: bold;">Error: ${resultado.message}</p>`;
             }
+
+            // ✅ Mostrar el costo total en la interfaz
+            document.getElementById("costo-total").innerText = `Costo Total: ${resultado.costo_total}`;
         }
 
-        // Función para mostrar los resultados en una tabla
+
+        function mostrarTablaEquilibrada(data) {
+            let equilibradaDiv = document.getElementById("tabla-equilibrada");
+            equilibradaDiv.innerHTML = "<h4>Problema Equilibrado:</h4>";
+
+            let table = document.createElement("table");
+            table.border = "1";
+
+            // **Encabezado de la tabla**
+            let headerRow = table.insertRow();
+            headerRow.insertCell().innerText = "Proveedor/Destino";
+            for (let j = 0; j < data.demanda.length; j++) {
+                let th = document.createElement("th");
+                th.innerText = `Destino ${j + 1}`;
+                headerRow.appendChild(th);
+            }
+            let thOferta = document.createElement("th");
+            thOferta.innerText = "Oferta";
+            headerRow.appendChild(thOferta);
+
+            // **Filas de proveedores con sus costos y oferta**
+            for (let i = 0; i < data.oferta.length; i++) {
+                let row = table.insertRow();
+                row.insertCell().innerText = `Proveedor ${i + 1}`;
+                for (let j = 0; j < data.demanda.length; j++) {
+                    let cell = row.insertCell();
+                    cell.innerText = data.costos[i][j];  // ✅ Muestra los costos correctamente
+                }
+                let ofertaCell = row.insertCell();
+                ofertaCell.innerText = data.oferta[i];  // ✅ Muestra la oferta correctamente
+            }
+
+            // **Fila de demanda**
+            let demandaRow = table.insertRow();
+            demandaRow.insertCell().innerText = "Demanda";
+            for (let j = 0; j < data.demanda.length; j++) {
+                let cell = demandaRow.insertCell();
+                cell.innerText = data.demanda[j];  // ✅ Muestra la demanda correctamente
+            }
+
+            equilibradaDiv.appendChild(table);
+        }
+
+
+
+
         function mostrarTablaResultados(data) {
             let resultadoDiv = document.getElementById("resultado");
             resultadoDiv.innerHTML = "";
@@ -144,7 +224,6 @@
             let table = document.createElement("table");
             table.border = "1";
 
-            // Crear la fila de encabezado con los nombres de los proveedores
             let headerRow = table.insertRow();
             headerRow.insertCell().innerText = "Destinos";
             Object.keys(data).forEach(proveedor => {
@@ -153,7 +232,6 @@
                 headerRow.appendChild(th);
             });
 
-            // Llenar la tabla con los valores asignados
             let destinos = Object.keys(data[Object.keys(data)[0]]);
             destinos.forEach(destino => {
                 let row = table.insertRow();
