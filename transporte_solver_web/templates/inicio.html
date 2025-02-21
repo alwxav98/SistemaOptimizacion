@@ -59,6 +59,10 @@
         <h3>Costo Total:</h3>
         <p id="costo-total">---</p>
 
+<!-- Botón para análisis de sensibilidad -->
+<a href="{{ url_for('transporte_solver_web.mostrar_analisis') }}" class="btn btn-primary w-100">
+    📊 Análisis de Sensibilidad
+</a>
 
         <!-- Botón para regresar al Menú Principal -->
         <div class="menu-button">
@@ -170,6 +174,22 @@
             // ✅ Mostrar el costo total en la interfaz
             document.getElementById("costo-total").innerText = `Costo Total: ${resultado.costo_total}`;
         }
+
+        async function enviarAnalisisSensibilidad() {
+            let resultadoDiv = document.getElementById("resultado").innerHTML;
+            let costoTotal = document.getElementById("costo-total").innerText;
+
+            let response = await fetch('/analizar_sensibilidad', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ solucion: resultadoDiv, costo_total: costoTotal })
+            });
+
+            if (response.redirected) {
+                window.location.href = response.url; // Redirige automáticamente a la nueva página
+            }
+        }
+
 
 
         function mostrarTablaEquilibrada(data) {
