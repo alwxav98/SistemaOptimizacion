@@ -10,6 +10,10 @@
     <div class="container">
         <h1>Optimización de Problemas</h1>
 
+        <h3>Ingresar Enunciado del Problema</h3>
+        <textarea id="problemStatement" rows="3" placeholder="Describe el problema aquí" width: 100%;></textarea>
+        <br>
+        
         <h3>Agregar Nodo</h3>
         <form id="nodeForm">
             <input type="text" id="nodeInput" placeholder="Nombre del nodo">
@@ -66,12 +70,12 @@
         </div>
         <br>
         <form id="pathForm">
-            <button type="submit">Calcular Ruta</button>
+            <button type="submit" onclick="fetchShortestPath(); return false;">Calcular Ruta</button>
         </form>
 
 
         <h3>Árbol de Expansión Mínima</h3>
-        <button id="mstButton">Calcular</button>
+        <button id="mstButton" onclick="fetchMST();">Calcular</button>
 
         <h3>Flujo Máximo</h3>
         <div class="shortest-path-container">
@@ -86,9 +90,8 @@
         </div>
         <br>
         <form id="flowForm">
-            <button type="submit">Calcular</button>
+            <button type="submit" onclick="fetchMaxFlow(); return false;">Calcular</button>
         </form>
-
 
         <h3>Flujo de Costo Mínimo</h3>
         <div class="shortest-path-container">
@@ -103,11 +106,8 @@
         </div>
         <br>
         <form id="minCostFlowForm">
-            <button type="submit">Calcular</button>
+            <button type="submit" onclick="fetchMinCostFlow(); return false;">Calcular</button>
         </form>
-
-        
-
 
         <h3>Resultados:</h3>
 
@@ -115,7 +115,7 @@
             <div class="result-box">
                 <h4>Ruta Más Corta</h4>
                 <p id="shortestPathResult">---</p>
-            </div>
+        </div>
 
             <div class="result-box">
                 <h4>Árbol de Expansión Mínima</h4>
@@ -125,7 +125,7 @@
             <div class="result-box">
                 <h4>Flujo Máximo</h4>
                 <p id="maxFlowResult">---</p>
-            </div>
+             </div>
 
             <div class="result-box">
                 <h4>Flujo de Costo Mínimo</h4>
@@ -139,12 +139,18 @@
         <button id="graphButton">Generar Grafo</button>
         <img id="graphImage" src="" alt="Grafo de la Red" style="max-width: 100%; margin-top: 20px;">
 
-
-
+        <div class="result-container">
+            <div class="result-boxIA" id="generalAnalysisBox">
+                <h4>Análisis de Sensibilidad</h4>
+                <p id="generalAnalysis">---</p>
+            </div>
+        </div>        
+           
         <!-- Botón para regresar al Menú Principal -->
         <div class="menu-button">
             <a href="/" class="back-button">Regresar al Menú Principal</a>
         </div>
+        
 
     </div>
 
@@ -277,35 +283,16 @@
 
         document.getElementById("pathForm").onsubmit = async function(event) {
             event.preventDefault();
-            let start = document.getElementById("startNode").value;
-            let end = document.getElementById("endNode").value;
-            let response = await fetch("/network_solver/shortest_path", {
-                method: "POST",
-                body: new URLSearchParams({ "start": start, "end": end }),
-                headers: { "Content-Type": "application/x-www-form-urlencoded" }
-            });
-            let data = await response.json();
-            document.getElementById("shortestPathResult").innerText = `Ruta: ${data.path.join(" → ")} (Costo: ${data.cost})`;
+            await fetchShortestPath();
         };
 
         document.getElementById("mstButton").onclick = async function() {
-            let response = await fetch("/network_solver/minimum_spanning_tree", { method: "POST" });
-            let data = await response.json();
-            let mstText = data.mst.map(edge => `${edge.from} → ${edge.to} (Peso: ${edge.weight})`).join("\n");
-            document.getElementById("mstResult").innerText = `\n${mstText}\nPeso Total: ${data.total_weight}`;
+            await fetchMST();
         };
 
         document.getElementById("flowForm").onsubmit = async function(event) {
             event.preventDefault();
-            let source = document.getElementById("sourceNode").value;
-            let sink = document.getElementById("sinkNode").value;
-            let response = await fetch("/network_solver/max_flow", {
-                method: "POST",
-                body: new URLSearchParams({ "source": source, "sink": sink }),
-                headers: { "Content-Type": "application/x-www-form-urlencoded" }
-            });
-            let data = await response.json();
-            document.getElementById("maxFlowResult").innerText = `Flujo Máximo: ${data.max_flow}`;
+            await fetchMaxFlow();
         };
 
         document.getElementById("graphButton").onclick = async function() {
@@ -316,6 +303,10 @@
 
         document.getElementById("minCostFlowForm").onsubmit = async function(event) {
             event.preventDefault();
+            await fetchMinCostFlow();
+        };
+
+        async function fetchMinCostFlow() {
             let source = document.getElementById("costSourceNode").value;
             let sink = document.getElementById("costSinkNode").value;
 
@@ -327,11 +318,14 @@
 
             let data = await response.json();
             if (data.status === "success") {
-                document.getElementById("minCostFlowResult").innerText = `Costo: ${data.cost}`;
+                document.getElementById("minCostFlowResult").textContent = `Costo Mínimo: ${data.cost}`;
             } else {
-                document.getElementById("minCostFlowResult").innerText = "Error: " + data.message;
+                document.getElementById("minCostFlowResult").textContent = `Error: ${data.message}`;
             }
-        };
+
+            await fetchAnalysis();
+        }
+
 
         document.getElementById("deleteNodeButton").onclick = async function() {
             let node = document.getElementById("deleteNode").value;
@@ -398,7 +392,88 @@
             updateEdgeDropdown(data.edges);
         };
 
+    
+        async function fetchAnalysis() {
+            let problemStatement = document.getElementById("problemStatement").value;
 
-    </script>
+            let response = await fetch("/network_solver/analyze_sensitivity", {
+                method: "POST",
+                body: new URLSearchParams({ "problem_statement": problemStatement }),
+                headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            });
+
+            let data = await response.json();
+            
+            // Mostrar el análisis correctamente
+            if (data.general_analysis) {
+                document.getElementById("generalAnalysis").innerText = data.general_analysis;
+            } else {
+                document.getElementById("generalAnalysis").innerText = "No se pudo generar el análisis de sensibilidad.";
+            }
+        }
+
+        async function fetchShortestPath() {
+            let start = document.getElementById("startNode").value;
+            let end = document.getElementById("endNode").value;
+
+            let response = await fetch("/network_solver/shortest_path", {
+                method: "POST",
+                body: new URLSearchParams({ start: start, end: end }),
+                headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            });
+
+            let data = await response.json();
+            document.getElementById("shortestPathResult").textContent = `Ruta: ${data.path.join(" → ")} (Costo: ${data.cost})`;
+
+            await fetchAnalysis();
+        }
+
+        async function fetchMST() {
+            let response = await fetch("/network_solver/minimum_spanning_tree", { method: "POST" });
+            let data = await response.json();
+            let mstText = data.mst.map(edge => `${edge.from} → ${edge.to} (Peso: ${edge.weight})`).join("\n");
+            document.getElementById("mstResult").innerText = `\n${mstText}\nPeso Total: ${data.total_weight}`;
+
+            await fetchAnalysis();
+        }
+
+        async function fetchMaxFlow() {
+            let source = document.getElementById("sourceNode").value;
+            let sink = document.getElementById("sinkNode").value;
+
+            let response = await fetch("/network_solver/max_flow", {
+                method: "POST",
+                body: new URLSearchParams({ source: source, sink: sink }),
+                headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            });
+
+            let data = await response.json();
+            document.getElementById("maxFlowResult").textContent = `Flujo Máximo: ${data.max_flow}`;
+
+            await fetchAnalysis();
+        }
+
+    
+        document.getElementById("pathForm").onsubmit = async function(event) {
+            event.preventDefault();
+            await fetchShortestPath();
+        };
+
+        document.getElementById("mstButton").onclick = async function() {
+            await fetchMST();
+        };
+
+        document.getElementById("flowForm").onsubmit = async function(event) {
+            event.preventDefault();
+            await fetchMaxFlow();
+        };
+
+        document.getElementById("minCostFlowForm").onsubmit = async function(event) {
+            event.preventDefault();
+            await fetchMinCostFlow();
+        };
+
+</script>
+
 </body>
 </html>
