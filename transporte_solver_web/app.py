@@ -1,39 +1,45 @@
 import os
 from flask import Blueprint, request, jsonify, render_template, session
-import pulp
-import pandas as pd
+import pulp  # Biblioteca para resolver problemas de optimización lineal
+import pandas as pd  # Para manejar la solución en formato tabular
 import openai  # Integración con OpenRouter para IA
-from dotenv import load_dotenv  # Para cargar la API Key desde .env
+from dotenv import load_dotenv  # Para cargar la API Key desde un archivo .env
 
 # 📌 Cargar las variables de entorno desde el archivo .env
 load_dotenv()
 
-# Obtener API Key de OpenRouter desde el entorno
-#OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+# Configuración de la API Key de OpenRouter
+# Se recomienda no exponer la API Key en el código por razones de seguridad
+# OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
-#if not OPENROUTER_API_KEY:
-    #raise ValueError("❌ ERROR: No se encontró la API Key de OpenRouter en el archivo .env")
+# Si la API Key no está configurada correctamente, lanzar un error
+# if not OPENROUTER_API_KEY:
+#    raise ValueError("❌ ERROR: No se encontró la API Key de OpenRouter en el archivo .env")
 
-# Configuracion cliente OpenRouter
+# 🔴 ⚠ API Key expuesta (no recomendado en producción)
 OPENROUTER_API_KEY = "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"
 
+# Configuración del cliente OpenRouter para generar análisis de sensibilidad con IA
 client = openai.OpenAI(
     api_key=OPENROUTER_API_KEY,
     base_url="https://openrouter.ai/api/v1"
 )
 
-# Crear Blueprint
+# 🔹 Crear un Blueprint de Flask para manejar las rutas del módulo de transporte
 transporte_solver_web = Blueprint(
     "transporte_solver_web", __name__, template_folder="templates", static_folder="static"
 )
 
+# 📌 Ruta principal de la aplicación (Página de inicio)
 @transporte_solver_web.route('/')
 def index():
     return render_template('inicio.html')
 
+# 📌 Endpoint para resolver el problema de transporte
 @transporte_solver_web.route('/solve', methods=['POST'])
 def solve_transportation():
     try:
+        # Obtener los datos del problema desde la solicitud JSON
         data = request.json
         costos = data['costos']
         oferta = data['oferta']
@@ -42,28 +48,34 @@ def solve_transportation():
         total_oferta = sum(oferta)
         total_demanda = sum(demanda)
 
+        # Variables para manejar la información sobre el equilibrio del problema
         mensaje_equilibrado = "El problema estaba equilibrado."
         equilibrado = True  
         tabla_equilibrada = None  
 
+        # 📌 Verificar si el problema está equilibrado (oferta = demanda)
         if total_oferta < total_demanda:
+            # Si la oferta es menor, agregar un proveedor ficticio con costo 0
             costos.append([0] * len(demanda))  
             oferta.append(total_demanda - total_oferta)  
             mensaje_equilibrado = "El problema no estaba equilibrado. Se agregó un proveedor ficticio."
             equilibrado = False
         elif total_oferta > total_demanda:
+            # Si la demanda es menor, agregar un destino ficticio con costo 0
             for fila in costos:
                 fila.append(0)  
             demanda.append(total_oferta - total_demanda)
             mensaje_equilibrado = "El problema no estaba equilibrado. Se agregó un destino ficticio."
             equilibrado = False
 
+        # Si después de los ajustes aún no se equilibró, devolver un error
         if sum(oferta) != sum(demanda):
             return jsonify({
                 "status": "error",
                 "message": "El problema no pudo equilibrarse correctamente. Revisa los datos."
             })
 
+        # Guardar la tabla equilibrada si se realizaron ajustes
         if not equilibrado:
             tabla_equilibrada = {
                 "costos": [[costos[i][j] for j in range(len(demanda))] for i in range(len(oferta))],
@@ -71,28 +83,37 @@ def solve_transportation():
                 "demanda": demanda
             }
 
-        n = len(oferta)
-        m = len(demanda)
+        # 📌 Crear el modelo de optimización lineal con PuLP
+        n = len(oferta)  # Número de proveedores
+        m = len(demanda)  # Número de destinos
 
         prob = pulp.LpProblem("Problema de Transporte", pulp.LpMinimize)
+
+        # Crear variables de decisión: x_ij (cantidad transportada de i a j)
         x = [[pulp.LpVariable(f"x_{i}_{j}", lowBound=0, cat='Continuous') for j in range(m)] for i in range(n)]
 
+        # 📌 Definir la función objetivo (minimizar costos de transporte)
         prob += pulp.lpSum(costos[i][j] * x[i][j] for i in range(n) for j in range(m))
 
+        # 📌 Restricciones de oferta (cada proveedor solo puede enviar su cantidad disponible)
         for i in range(n):
             prob += pulp.lpSum(x[i][j] for j in range(m)) == oferta[i]
 
+        # 📌 Restricciones de demanda (cada destino debe recibir su cantidad exacta)
         for j in range(m):
             prob += pulp.lpSum(x[i][j] for i in range(n)) == demanda[j]
 
+        # Resolver el problema de optimización
         prob.solve()
 
+        # 📌 Obtener los resultados
         resultado = [[pulp.value(x[i][j]) for j in range(m)] for i in range(n)]
         df = pd.DataFrame(resultado, columns=[f"Destino {j + 1}" for j in range(m)],
                           index=[f"Proveedor {i + 1}" for i in range(n)])
 
-        costo_total = pulp.value(prob.objective)
+        costo_total = pulp.value(prob.objective)  # Obtener el costo mínimo encontrado
 
+        # Guardar resultados en sesión para futuras consultas
         session['solucion'] = df.to_dict()
         session['costo_total'] = costo_total
 
@@ -108,18 +129,18 @@ def solve_transportation():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
 
+# 📌 Ruta para mostrar el análisis de sensibilidad
 @transporte_solver_web.route('/mostrar_analisis')
 def mostrar_analisis():
     solucion = session.get('solucion', {})
     costo_total = session.get('costo_total', 0)
     return render_template('analisis_sensibilidad.html', solucion=solucion, costo_total=costo_total)
 
+# 📌 Ruta para procesar el análisis de sensibilidad usando IA
 @transporte_solver_web.route('/procesar_analisis', methods=['POST'])
 def procesar_analisis():
     try:
         data = request.json
-        print("📥 Datos recibidos en el backend:", data)  # Debug
-
         contexto = data.get('contexto', '').strip()
         solucion = data.get('solucion', None)
         costo_total = data.get('costo_total', None)
@@ -132,22 +153,15 @@ def procesar_analisis():
         return jsonify({"status": "success", "analisis": analisis})
 
     except Exception as e:
-        print("❌ Error en el análisis de sensibilidad:", str(e))
         return jsonify({"status": "error", "analisis": f"❌ Error en el análisis: {str(e)}"})
 
-
+# 📌 Función para generar el análisis de sensibilidad usando IA con OpenRouter
 def generar_analisis_de_sensibilidad(contexto, solucion, costo_total):
-    """
-    Genera un análisis de sensibilidad utilizando IA con OpenRouter.
-    """
-    
-    # Formatear la solución para una mejor interpretación
     resumen_solucion = []
     for destino, proveedores in solucion.items():
         for proveedor, valor in proveedores.items():
             resumen_solucion.append(f"Desde {proveedor} hasta {destino}: {valor} unidades.")
 
-    # Construcción del prompt para la IA
     prompt = f"""
     Se te proporciona un problema de transporte con los siguientes detalles:
 
@@ -163,24 +177,14 @@ def generar_analisis_de_sensibilidad(contexto, solucion, costo_total):
     1. Identifica restricciones activas y con holgura.
     2. Evalúa qué rutas son críticas y cuáles podrían ajustarse.
     3. Analiza cómo cambios en oferta/demanda afectarían el resultado.
-    4. Brinda recomendaciones específicas para mejorar costos o eficiencia.
-
-    **Importante:** El análisis debe basarse únicamente en los resultados obtenidos y el contexto del problema, sin información predefinida.
     """
 
     try:
-        print("📨 Enviando solicitud a OpenRouter...")  # Debugging
         respuesta = client.chat.completions.create(
-            model="openai/gpt-4-turbo",  # O el modelo que uses en OpenRouter
-            temperature=0.7,
-            max_tokens=800,
-            messages=[{"role": "system", "content": "Eres un experto en optimización y análisis de sensibilidad."},
-                      {"role": "user", "content": prompt}]
+            model="openai/gpt-4-turbo",
+            messages=[{"role": "user", "content": prompt}]
         )
-
-        analisis = respuesta.choices[0].message.content
+        return respuesta.choices[0].message.content
 
     except Exception as e:
-        analisis = f"Error al generar el análisis con OpenRouter: {str(e)}"
-
-    return analisis
+        return f"Error al generar el análisis con OpenRouter: {str(e)}"
