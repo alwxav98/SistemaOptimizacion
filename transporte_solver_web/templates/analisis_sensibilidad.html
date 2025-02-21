@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis de Sensibilidad</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="d-flex align-items-center justify-content-center min-vh-100 overflow-auto">
+    <div class="container mt-4">
+        <div class="card p-4 shadow-lg overflow-auto">
+            <h2 class="text-center text-primary">📊 Análisis de Sensibilidad</h2>
+
+            <h4>Contexto del Problema:</h4>
+            <textarea id="contexto" class="form-control mb-3" rows="4" placeholder="Ejemplo: Una empresa produce un único artículo en tres plantas..."></textarea>
+
+            <h4>Resultado del Problema:</h4>
+            <div class="alert alert-info" id="solucion" data-json='{{ solucion | tojson | safe }}'></div>
+
+            <h4>Costo Total:</h4>
+            <div class="alert alert-warning" id="costo-total">{{ costo_total }}</div>
+
+            <h4>Análisis de Sensibilidad:</h4>
+            <div id="analisis" class="alert alert-success">Esperando análisis...</div>
+
+            <button class="btn btn-primary mt-2 w-100" onclick="realizarAnalisis()">📊 Generar Análisis</button>
+
+            <script>
+                function mostrarSolucion() {
+                    let solucionRaw = document.getElementById("solucion").getAttribute("data-json");
+                    let parsedData;
+            
+                    try {
+                        parsedData = JSON.parse(solucionRaw);
+                    } catch (error) {
+                        console.error("❌ Error al parsear la solución:", error);
+                        document.getElementById("solucion").innerHTML = "<p class='text-danger'>Error al procesar la solución.</p>";
+                        return;
+                    }
+            
+                    let formattedSolucion = "<ul>";
+                    for (let destino in parsedData) {
+                        formattedSolucion += `<li><strong>${destino}:</strong> <ul>`;
+                        for (let proveedor in parsedData[destino]) {
+                            formattedSolucion += `<li>${proveedor}: ${parsedData[destino][proveedor]}</li>`;
+                        }
+                        formattedSolucion += "</ul></li>";
+                    }
+                    formattedSolucion += "</ul>";
+            
+                    document.getElementById("solucion").innerHTML = formattedSolucion;
+                }
+            
+                async function realizarAnalisis() {
+                    let solucionRaw = document.getElementById("solucion").getAttribute("data-json");
+                    let costoTotal = document.getElementById("costo-total").innerText.trim();
+                    let contexto = document.getElementById("contexto").value.trim();
+            
+                    if (!contexto) {
+                        alert("⚠️ Por favor, ingrese el contexto del problema.");
+                        return;
+                    }
+            
+                    console.log("📤 Enviando datos...");
+                    console.log("📌 Contexto:", contexto);
+                    console.log("📌 Solución:", solucionRaw);
+                    console.log("📌 Costo Total:", costoTotal);
+            
+                    try {
+                        let response = await fetch("{{ url_for('transporte_solver_web.procesar_analisis') }}", {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                                contexto: contexto, 
+                                solucion: JSON.parse(solucionRaw),  
+                                costo_total: costoTotal 
+                            })
+                        });
+            
+                        let data = await response.json();
+                        console.log("📥 Respuesta del servidor:", data);
+            
+                        if (data.status === "success") {
+                            document.getElementById("analisis").innerHTML = `<p>${data.analisis.replace(/\n/g, "<br>")}</p>`;
+                        } else {
+                            document.getElementById("analisis").innerHTML = "<p class='text-danger'>❌ Error en el análisis.</p>";
+                        }
+                    } catch (error) {
+                        document.getElementById("analisis").innerHTML = "<p class='text-danger'>❌ Error al procesar el análisis.</p>";
+                        console.error("❌ Error en la petición al backend:", error);
+                    }
+                }
+            
+                window.onload = mostrarSolucion;
+            </script>
+
+            <div class="text-center mt-3">
+                <a href="/" class="btn btn-outline-secondary">🏠 Regresar al Menú Principal</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
