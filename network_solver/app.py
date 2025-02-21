@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify
+from chatbot_analisis_sensibilidad.app import chat_analyze  # Importamos la función del chatbot
 import heapq
 from collections import deque
 import matplotlib.pyplot as plt
@@ -8,7 +9,15 @@ import base64
 
 network_solver = Blueprint("network_solver", __name__, template_folder="templates",
                            static_folder="static")
-
+# 🔹 Almacenar resultados internamente para generar un análisis general
+latest_results = {
+    "shortest_path": None,
+    "shortest_path_cost": None,
+    "mst": None,
+    "mst_total_weight": None,
+    "max_flow": None,
+    "min_cost_flow": None
+}
 shortest_path_edges = set()
 
 
@@ -30,7 +39,7 @@ class Graph:
             self.edges[from_node][to_node] = int(weight)
             self.edges[to_node][from_node] = int(weight)
             self.capacity[from_node][to_node] = int(weight)
-            self.capacity[to_node][from_node] = 0
+            self.capacity[to_node][from_node] = int(weight)
 
             # ✅ Guardar los costos de la arista
             if from_node not in self.cost:
@@ -83,6 +92,21 @@ class Graph:
         return False
 
     def edmonds_karp(self, source, sink):
+        if source not in self.nodes or sink not in self.nodes:
+            return 0  # No hay nodos en el grafo
+
+        if not any(self.capacity[source].values()) or not any(self.capacity[sink].values()):
+            return 0  # No hay flujo posible desde el nodo de origen o hacia el destino
+
+        if not nx.has_path(nx.DiGraph(self.edges), source, sink):
+            return 0  # No hay un camino entre source y sink
+
+        # 🔹 Imprimir la estructura del grafo antes de calcular el flujo máximo
+        print("Capacidades del grafo antes de ejecutar flujo máximo:")
+        for node, edges in self.capacity.items():
+            for dest, cap in edges.items():
+                print(f"{node} → {dest} : {cap}")
+
         parent = {}
         max_flow = 0
 
@@ -160,6 +184,7 @@ class Graph:
             print(f"Error en min_cost_max_flow: {e}")
             return 0  # Si hay error, devolver 0
 
+
     def remove_node(self, node):
         """Elimina un nodo y todas sus conexiones."""
         if node in self.nodes:
@@ -193,9 +218,6 @@ class Graph:
             del self.capacity[to_node][from_node]
             if from_node in self.cost[to_node]:
                 del self.cost[to_node][from_node]
-
-
-
 
 
 
@@ -233,7 +255,7 @@ def add_edge():
 
 @network_solver.route("/shortest_path", methods=["POST"])
 def shortest_path():
-    global shortest_path_edges
+    global shortest_path_edges,latest_results
     start = request.form["start"]
     end = request.form["end"]
     path, cost = graph.dijkstra(start, end)
@@ -243,34 +265,69 @@ def shortest_path():
     if path:
         for i in range(len(path) - 1):
             shortest_path_edges.add((path[i], path[i + 1]))
-            shortest_path_edges.add((path[i + 1], path[i]))  # Para grafos no dirigidos
+            shortest_path_edges.add((path[i + 1], path[i]))  # # 🔹 Guardar el resultado internamente
+    latest_results["shortest_path"] = path
+    latest_results["shortest_path_cost"] = cost
 
     return jsonify({"path": path, "cost": cost})
 
 
 @network_solver.route("/max_flow", methods=["POST"])
 def max_flow():
+    global latest_results
     source = request.form["source"]
     sink = request.form["sink"]
     flow = graph.edmonds_karp(source, sink)
+
+    # 🔹 Guardar el resultado internamente
+    latest_results["max_flow"] = flow
+
     return jsonify({"max_flow": flow})
 
 
 @network_solver.route("/minimum_spanning_tree", methods=["POST"])
 def minimum_spanning_tree():
+    global latest_results
     result = graph.prim()
-    return jsonify(result)
+
+    # 🔹 Guardar el resultado internamente
+    latest_results["mst"] = result["mst"]
+    latest_results["mst_total_weight"] = result["total_weight"]
+
+    return jsonify({"mst": result["mst"], "total_weight": result["total_weight"]})
+
 
 @network_solver.route("/min_cost_max_flow", methods=["POST"])
 def min_cost_max_flow():
+    global latest_results
     source = request.form["source"]
     sink = request.form["sink"]
 
     try:
+        # Verifica si existen caminos válidos
+        if source not in graph.nodes or sink not in graph.nodes:
+            return jsonify({"status": "error", "message": "Los nodos no existen en el grafo."})
+
+        # Verifica si hay conexiones entre los nodos
+        if sink not in graph.edges.get(source, {}):
+            return jsonify({"status": "error", "message": "No hay conexión entre los nodos seleccionados."})
+
+        # Calcula el flujo de costo mínimo
         result = graph.min_cost_max_flow(source, sink)
+
+        # Verifica si el resultado es válido
+        if result is None:
+
+            return jsonify({"status": "error", "message": "No hay un flujo válido en la red."})
+
+        # Guardar el resultado internamente
+        latest_results["min_cost_flow"] = result
+
         return jsonify({"status": "success", "cost": result})
+
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
+
 
 @network_solver.route("/remove_node", methods=["POST"])
 def remove_node():
@@ -301,6 +358,46 @@ def get_edges():
     })
 
 
+@network_solver.route("/analyze_sensitivity", methods=["POST"])
+def analyze_sensitivity():
+    problem_statement = request.form["problem_statement"]
+
+    # ⚠ Verificar que haya nodos en el grafo antes de calcular
+    if len(graph.nodes) < 2:
+        return jsonify({"general_analysis": "⚠ No hay suficientes nodos en el grafo para realizar análisis."})
+
+    # Escoger nodos aleatorios para el análisis si no hay entradas fijas
+    node_list = list(graph.nodes)
+    start, end = node_list[0], node_list[-1]  # Elegir el primer y último nodo para análisis
+
+    # Calcular cada solución internamente
+    shortest_path, sp_cost = graph.dijkstra(start, end)
+    mst_result = graph.prim()
+    max_flow = graph.edmonds_karp(start, end)
+    min_cost_flow = graph.min_cost_max_flow(start, end)
+
+    # Generar los análisis internos (sin mostrarlos individualmente)
+    analysis_shortest = chat_analyze("Análisis de Ruta Más Corta", shortest_path, sp_cost)
+    analysis_mst = chat_analyze("Análisis del Árbol de Expansión Mínima", mst_result["mst"], mst_result["total_weight"])
+    analysis_max_flow = chat_analyze("Análisis del Flujo Máximo", None, max_flow)
+    analysis_min_cost = chat_analyze("Análisis del Flujo de Costo Mínimo", None, min_cost_flow)
+
+    # Unir todos los análisis en un único análisis general
+    general_analysis = f"""
+      {problem_statement}
+
+      Ruta Más Corta: {analysis_shortest}
+      Árbol de Expansión Mínima: {analysis_mst}
+      Flujo Máximo: {analysis_max_flow}
+      Flujo de Costo Mínimo: {analysis_min_cost}
+
+      Este análisis evalúa cómo afectan los cambios en costos, restricciones y capacidades a la solución óptima.
+    """
+
+    return jsonify({"general_analysis": general_analysis})
+
+    
+    
 @network_solver.route("/generate_graph")
 def generate_graph():
     global shortest_path_edges
