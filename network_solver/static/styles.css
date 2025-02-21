@@ -90,10 +90,41 @@ li {
     background-color: #222;
     padding: 15px;
     border-radius: 10px;
-    width: 30%;
+    width: 40%;
     text-align: center;
     box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
+   
+
 }
+
+#problemStatement {
+    width: 90%;
+    height: 200px;
+    resize: vertical;
+    font-size: 16px;
+    padding: 10px;
+}
+
+
+.result-boxIA {
+    background-color: #222;
+    padding: 15px;
+    border-radius: 10px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
+   
+
+}
+.generalAnalysisBox {
+    width: 90%;  /* Ajusta el ancho al 90% del contenedor */
+    max-width: 1000px;  /* Define un ancho máximo */
+    margin: 20px auto;  /* Centra el cuadro */
+    text-align: justify;  /* Justifica el texto */
+    display: flex;  /* Usa flexbox para alinear correctamente */
+    flex-wrap: wrap;  /* Evita que se agrupe en una columna */
+    padding: 15px;  /* Espaciado interno */
+} 
 
 .menu-button {
     margin-top: 20px;
