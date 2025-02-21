@@ -13,11 +13,11 @@ import cv2
 load_dotenv()
 
 # API Key de OpenRouter
-openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
+#openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
 
-if not openrouter_api_key:
-    raise ValueError("❌ ERROR: No se encontró la clave API de OpenRouter. Verifica tu archivo .env.")
-
+#if not openrouter_api_key:
+    #raise ValueError("❌ ERROR: No se encontró la clave API de OpenRouter. Verifica tu archivo .env.")
+openrouter_api_key = "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"
 # Configurar cliente OpenRouter
 client = openai.OpenAI(
     api_key=openrouter_api_key,
@@ -25,7 +25,7 @@ client = openai.OpenAI(
 )
 
 # Crear Blueprint para chatbot
-chatbot = Blueprint("chatbot", _name_, template_folder="templates", static_folder="static")
+chatbot = Blueprint("chatbot", __name__, template_folder="templates", static_folder="static")
 
 # Expresiones regulares para capturar números en la tabla
 NUMERIC_PATTERN = r"\d+\.\d+|\d+"
@@ -144,3 +144,38 @@ def chat():
         return render_template("chat.html", historial=session["historial"], bot_respuesta=f"❌ Error en la solicitud: {str(e)}")
     
     return render_template("chat.html", historial=session["historial"])
+
+def chat_analyze(problem_statement, solution, cost):
+    """
+    Envía la solución y el contexto al chatbot para análisis de sensibilidad.
+    """
+    analysis_prompt = f"""
+    {problem_statement}
+    La solución obtenida es {solution} con un costo de {cost}.
+    ¿Puedes realizar un análisis de sensibilidad sobre esta solución?
+    """
+
+    response = chatbot_response(analysis_prompt)
+    return response
+
+def chatbot_response(prompt):
+    """
+    Llama a OpenAI para generar la respuesta.
+    """
+    mensajes_previos = [
+        {"role": "system", "content": """
+        Eres un experto en redes y transporte. Evalúa la estabilidad de la solución ante cambios en los costos o capacidades.
+        """},
+        {"role": "user", "content": prompt}
+    ]
+
+    try:
+        respuesta = client.chat.completions.create(
+            model="openai/gpt-3.5-turbo",
+            temperature=0.7,
+            max_tokens=500,
+            messages=mensajes_previos
+        )
+        return respuesta.choices[0].message.content if respuesta.choices else "⚠️ No se recibió respuesta del modelo."
+    except Exception as e:
+        return f"❌ Error en la solicitud: {str(e)}"
